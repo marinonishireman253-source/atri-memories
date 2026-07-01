@@ -1,0 +1,12 @@
+node_modules
+dist
+output
+artifacts
+tmp
+.env
+.atri-admin-delete-code
+.DS_Store
+.vercel
+.playwright-cli
+supabase/.temp
+docs/superpowers/

@@ -1,0 +1,773 @@
+:root {
+  color: #102b43;
+  --font-sans: "Outfit", "Inter", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Cinzel", "Noto Serif SC", "Songti SC", STSong, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: geometricprecision;
+  
+  --color-text-main: #101e2c;
+  --color-text-sub: #4a5c6d;
+  --color-primary: #ffca3a; /* Sunflower yellow primary */
+  --color-primary-deep: #e0ab00;
+  --color-glass-bg: #ffffff;
+  --color-indicator-green: #37ac90;
+  --color-indicator-glow: #47c7a6;
+  --color-metal-gray: #101e2c;
+  --border-tech: 3px solid #101e2c; /* Thick outlines */
+  --scanline-opacity: 0.015;
+  --terminal-line: rgba(16, 30, 44, 0.12);
+  --terminal-glow: 0 0 10px rgba(16, 30, 44, 0.08);
+  
+  /* Cyber Highlights */
+  --cyber-cyan: #00e5ff;
+  --cyber-pink: #ff5e7e;
+  --cyber-glow-cyan: 0 0 15px rgba(0, 229, 255, 0.4);
+  --cyber-glow-pink: 0 0 15px rgba(255, 94, 126, 0.4);
+
+  --ink: #101e2c;
+  --ink-soft: #4a5c6d;
+  --ocean: #0096d6;
+  --ocean-deep: #0074a6;
+  --line: #101e2c;
+  --glass: #ffffff;
+  --glass-strong: #ffffff;
+  --shadow: 5px 5px 0px #101e2c; /* Hard offset block shadow */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+html.home-scroll-locked {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overscroll-behavior-y: none;
+}
+
+body.home-scroll-locked {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body.modal-active {
+  overflow: hidden;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.glass-panel {
+  position: relative;
+  border: var(--border-tech);
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.glass-panel:hover {
+  transform: translate(-2px, -2px);
+  border-color: var(--ink);
+  box-shadow: 7px 7px 0px var(--ink);
+}
+
+.glass-panel::after {
+  display: none;
+}
+
+.glass-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ghost-button,
+.primary-button {
+  min-height: 44px;
+  border-radius: 4px;
+  border: var(--border-tech);
+  padding: 0 24px;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  box-shadow: 3px 3px 0px var(--ink);
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.ghost-button {
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.ghost-button:hover:not(:disabled) {
+  background: #fff6f8;
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 4.5px 4.5px 0px var(--ink);
+}
+
+.ghost-button:active:not(:disabled) {
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1.5px 1.5px 0px var(--ink);
+}
+
+.primary-button {
+  color: var(--ink);
+  background: #ffca3a; /* Bright anime sunflower yellow */
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #ffb703;
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 4.5px 4.5px 0px var(--ink);
+}
+
+.primary-button:active:not(:disabled) {
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1.5px 1.5px 0px var(--ink);
+}
+
+.ghost-button.compact,
+.primary-button.compact,
+.danger-button.compact {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 0.82rem;
+}
+
+.eyebrow {
+  color: #217a9f;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.27em;
+  margin: 0 0 17px;
+}
+
+.section-accent {
+  width: 6px;
+  height: 20px;
+  border-radius: 2px;
+  display: block;
+  background: var(--cyber-pink);
+  border: 2px solid var(--ink);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.tag-chip {
+  min-height: 27px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  padding: 0 10px;
+  color: var(--ink);
+  background: #e5f8ff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 2px 2px 0px var(--ink);
+  transition: background-color 150ms, color 150ms, transform 150ms, box-shadow 150ms;
+}
+
+.tag-chip:hover:not(:disabled):not(.static) {
+  color: #fff;
+  background: var(--cyber-pink);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--ink);
+}
+
+.tag-chip:active:not(:disabled):not(.static) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--ink);
+}
+
+.tag-chip.static {
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+}
+
+.tag-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: -7px;
+}
+
+.memory-date {
+  margin: 0 0 9px;
+  color: #608aa0;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+}
+
+.form-error {
+  color: #a44646;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.status-notice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  margin: 0;
+  border: var(--border-tech);
+  border-radius: 4px;
+  padding: 12px 14px;
+  box-shadow: 4px 4px 0 var(--ink);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.status-notice.has-icon {
+  grid-template-columns: 30px minmax(0, 1fr);
+  column-gap: 11px;
+  align-items: flex-start;
+}
+
+.status-notice.compact {
+  justify-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  text-align: center;
+  padding: 22px 18px;
+}
+
+.status-notice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 2px 2px 0 var(--ink);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  position: relative;
+}
+
+.status-notice-icon[data-icon="info"]::before,
+.status-notice-icon[data-icon="info"]::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: currentColor;
+}
+
+.status-notice-icon[data-icon="info"]::before {
+  top: 9px;
+  width: 4px;
+  height: 4px;
+}
+
+.status-notice-icon[data-icon="info"]::after {
+  top: 15px;
+  width: 3px;
+  height: 7px;
+}
+
+.status-notice-icon[data-icon="warning"] {
+  background: var(--color-primary);
+  color: var(--ink);
+}
+
+.status-notice-icon[data-icon="success"] {
+  background: #e1f9f2;
+  color: var(--color-indicator-green);
+}
+
+.status-notice-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.status-notice-title,
+.status-notice-body {
+  margin: 0;
+}
+
+.status-notice-title {
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.status-notice-body {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.status-notice.info {
+  background: #ffffff;
+}
+
+.status-notice.success {
+  background: #e1f9f2;
+}
+
+.status-notice.warning {
+  background: #fffcf0;
+}
+
+.status-notice.error {
+  background: #fff0ee;
+}
+
+.status-notice.empty {
+  background: #ffffff;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  place-items: center;
+  padding: 22px 22px calc(82px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 50% 22%, rgba(238, 250, 255, 0.2), transparent 42%),
+    rgba(6, 38, 58, 0.24);
+  -webkit-backdrop-filter: blur(7px) saturate(1.04);
+  backdrop-filter: blur(7px) saturate(1.04);
+}
+
+.modal {
+  position: relative;
+  z-index: 10;
+  isolation: isolate;
+  width: min(480px, 100%);
+  max-height: calc(100vh - 104px);
+  max-height: calc(100dvh - 104px - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  border: var(--border-tech);
+  border-radius: 8px;
+  padding: 28px;
+  background: #ffffff;
+  box-shadow: 8px 8px 0px var(--ink);
+  animation: modal-in 190ms ease-out;
+}
+
+.modal::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1.5px dashed var(--ink);
+  opacity: 0.15;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.modal.glass-panel {
+  background: #ffffff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.modal.glass-panel::after {
+  display: none;
+}
+
+.modal-close {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  float: right;
+  height: 34px;
+  width: 34px;
+  border: 1px solid rgba(117, 178, 205, 0.24);
+  border-radius: 999px;
+  margin: -8px -8px 8px 12px;
+  background: rgba(255, 255, 255, 0.76);
+  color: #315d73;
+  font-size: 1.25rem;
+  line-height: 1;
+  box-shadow: 0 8px 20px rgba(16, 91, 128, 0.12);
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.modal-close:hover:not(:disabled) {
+  background: rgba(226, 247, 255, 0.92);
+  color: #0b6f9c;
+  transform: translateY(-1px);
+}
+
+.modal h2 {
+  color: var(--ink);
+  font-size: 1.36rem;
+  font-weight: 550;
+  letter-spacing: 0.08em;
+  margin: 0 0 23px;
+}
+
+.text-button {
+  width: 100%;
+  border: 0;
+  margin-top: 14px;
+  color: #217a9f;
+  background: transparent;
+  font-size: 0.82rem;
+}
+
+.text-button:hover {
+  color: #0a4e70;
+}
+
+.text-button.inline {
+  width: auto;
+  margin-top: 0;
+  padding: 0;
+  font-weight: 600;
+  text-align: left;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 7px;
+}
+
+.modal-actions button {
+  flex: 1;
+}
+
+.danger-button {
+  min-height: 43px;
+  margin-top: 12px;
+  border: var(--border-tech);
+  border-radius: 4px;
+  color: var(--ink);
+  background: #ff758f; /* Bright anime rose red */
+  box-shadow: 3px 3px 0px var(--ink);
+  font-weight: 700;
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.danger-button:hover:not(:disabled) {
+  color: #fff;
+  background: #e63946;
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 4.5px 4.5px 0px var(--ink);
+}
+
+.danger-button:active:not(:disabled) {
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1.5px 1.5px 0px var(--ink);
+}
+
+.danger-button.confirmed {
+  color: #fff;
+  background: #d90429;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+/* --- Scrapbook Washi Tapes (手撕纸胶带) --- */
+.washi-tape {
+  position: absolute;
+  height: 24px;
+  min-width: 80px;
+  z-index: 10;
+  backdrop-filter: blur(0.5px);
+  box-shadow: 0 1px 3px rgba(16, 30, 44, 0.1);
+  pointer-events: none;
+  /* Torn edge polygon path */
+  clip-path: polygon(
+    2% 8%, 5% 3%, 95% 4%, 98% 10%,
+    97% 45%, 99% 85%, 94% 96%, 5% 94%,
+    2% 85%, 4% 50%
+  );
+  opacity: 0.82;
+}
+
+.washi-tape.pink {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 94, 126, 0.4),
+    rgba(255, 94, 126, 0.4) 6px,
+    rgba(255, 255, 255, 0.2) 6px,
+    rgba(255, 255, 255, 0.2) 12px
+  );
+  border: 1px dashed rgba(255, 94, 126, 0.6);
+}
+
+.washi-tape.cyan {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 229, 255, 0.35),
+    rgba(0, 229, 255, 0.35) 6px,
+    rgba(255, 255, 255, 0.2) 6px,
+    rgba(255, 255, 255, 0.2) 12px
+  );
+  border: 1px dashed rgba(0, 229, 255, 0.6);
+}
+
+.washi-tape.yellow {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 202, 58, 0.4),
+    rgba(255, 202, 58, 0.4) 6px,
+    rgba(255, 255, 255, 0.2) 6px,
+    rgba(255, 255, 255, 0.2) 12px
+  );
+  border: 1px dashed rgba(255, 202, 58, 0.6);
+}
+
+.washi-tape-top-left {
+  top: -8px;
+  left: -20px;
+  transform: rotate(-30deg);
+}
+
+.washi-tape-top-right {
+  top: -6px;
+  right: -24px;
+  transform: rotate(35deg);
+}
+
+.washi-tape-bottom-left {
+  bottom: -8px;
+  left: -22px;
+  transform: rotate(40deg);
+}
+
+.washi-tape-bottom-right {
+  bottom: -6px;
+  right: -20px;
+  transform: rotate(-32deg);
+}
+
+/* --- Page Folds (手绘便签折角) --- */
+.status-notice.page-fold {
+  position: relative;
+  /* Clip the top-right corner to allow the folded corner illusion */
+  clip-path: polygon(
+    0% 0%, 
+    calc(100% - 14px) 0%, 
+    100% 14px, 
+    100% 100%, 
+    0% 100%
+  );
+}
+
+.status-notice.page-fold::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  /* Shaded folded-over flap */
+  background: #eef2f5;
+  border-left: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  border-bottom-left-radius: 3px;
+  pointer-events: none;
+}
+
+.status-notice.page-fold.success::after {
+  background: #c3ebd0;
+}
+.status-notice.page-fold.warning::after {
+  background: #ebd8bd;
+}
+.status-notice.page-fold.error::after {
+  background: #ebc3c3;
+}
+.status-notice.page-fold.info::after {
+  background: #e1e7ec;
+}
+
+/* --- Manga Screentone Shadows (漫画网点阴影) --- */
+.screentone-shadow {
+  position: relative;
+}
+
+.screentone-shadow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: translate(5px, 5px);
+  border: 3.5px solid var(--ink);
+  border-radius: inherit;
+  background-color: #ffffff;
+  background-image: radial-gradient(var(--ink) 25%, transparent 30%);
+  background-size: 6px 6px;
+  pointer-events: none;
+}
+
+/* Override solid shadows when using screentone shadow */
+.memory-card.screentone-shadow,
+.status-notice.screentone-shadow,
+.daily-atri.screentone-shadow,
+.modal.screentone-shadow {
+  box-shadow: none !important;
+}
+
+/* --- Notebook Wire Rings (手写本活页铁线圈) --- */
+.notebook-wire-rings {
+  position: absolute;
+  top: -15px;
+  left: 40px;
+  right: 40px;
+  display: flex;
+  justify-content: space-around;
+  pointer-events: none;
+  z-index: 120;
+}
+
+.ring-item {
+  position: relative;
+  width: 10px;
+  height: 26px;
+  background: #d6dde4; /* Silver metallic clip look */
+  border: 2.5px solid var(--ink);
+  border-radius: 5px;
+  box-shadow: 2px 2px 0 rgba(16, 30, 44, 0.15);
+}
+
+/* Hole on the page */
+.ring-item::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--ink);
+  border-radius: 50%;
+}
+
+.ring-item::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--ink);
+  border-radius: 50%;
+}
+
+/* --- Ink Stamp of Approval (复古印记邮戳) --- */
+.ink-stamp {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.85;
+  transform-origin: center;
+  filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.05));
+}
+
+.stamp-favorite {
+  top: 10px;
+  right: 10px;
+  animation: stamp-press 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+}
+
+.stamp-approved {
+  bottom: 12px;
+  right: 12px;
+  width: 72px;
+  height: 72px;
+  animation: stamp-press-approved 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+}
+
+@keyframes stamp-press {
+  0% {
+    transform: scale(2.5) rotate(40deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(-15deg);
+    opacity: 0.85;
+  }
+}
+
+@keyframes stamp-press-approved {
+  0% {
+    transform: scale(2.5) rotate(-35deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(10deg);
+    opacity: 0.85;
+  }
+}
+
+/* --- Polaroid Reveal Animation (拍立得缓慢显影) --- */
+.polaroid-reveal {
+  animation: polaroid-develop 1.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  will-change: filter, opacity;
+}
+
+@keyframes polaroid-develop {
+  0% {
+    filter: grayscale(100%) contrast(140%) brightness(125%) blur(4px);
+    opacity: 0.2;
+  }
+  40% {
+    filter: grayscale(70%) contrast(115%) brightness(112%) blur(2.5px);
+    opacity: 0.75;
+  }
+  100% {
+    filter: grayscale(0%) contrast(100%) brightness(100%) blur(0px);
+    opacity: 1;
+  }
+}

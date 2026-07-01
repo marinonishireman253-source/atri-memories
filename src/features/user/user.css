@@ -1,0 +1,277 @@
+.user-panel {
+  width: min(560px, 100%);
+}
+
+.user-panel-head {
+  padding-right: 34px;
+}
+
+.user-panel-head p:last-child {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.user-panel .status-notice {
+  margin-top: 12px;
+}
+
+.user-bio {
+  margin-top: 8px !important;
+  color: var(--ink-soft) !important;
+  line-height: 1.65;
+}
+
+.profile-edit-button {
+  width: auto;
+  margin: 12px 0 4px;
+  text-align: left;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  margin-top: 16px;
+  padding: 15px;
+  background: #ffffff;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.profile-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.profile-form input,
+.profile-form textarea {
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  outline: none;
+  color: var(--ink);
+  background: #ffffff;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.profile-form textarea {
+  resize: vertical;
+}
+
+.profile-form input:focus,
+.profile-form textarea:focus {
+  transform: translate(-1px, -1px);
+  box-shadow: 2.5px 2.5px 0 var(--ink);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.profile-actions button {
+  flex: 1;
+  min-height: 40px;
+  padding: 0 12px;
+  font-size: 0.82rem;
+}
+
+.user-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0 14px;
+}
+
+.user-summary-grid div,
+.user-tags-card {
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.user-summary-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.user-summary-grid strong {
+  display: block;
+  color: var(--ink);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.user-summary-grid small {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.user-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.user-card-title h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.user-scope-card {
+  margin-bottom: 14px;
+}
+
+.user-onboarding-card {
+  margin-bottom: 14px;
+}
+
+.user-onboarding-card .status-notice {
+  margin-top: 0;
+}
+
+.scope-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  padding: 0 12px;
+  color: var(--ink);
+  background: #e8f8ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+}
+
+.scope-pill.active {
+  background: #e1f9f2;
+}
+
+.user-scope-description {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
+.user-scope-description strong,
+.user-scope-description span {
+  display: block;
+}
+
+.user-scope-description strong {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.user-scope-description span {
+  margin-top: 4px;
+}
+
+.user-upload-policy-card {
+  margin-bottom: 14px;
+}
+
+.user-upload-policy-card.blocked {
+  background: #fff0ee;
+}
+
+.upload-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.upload-policy-item {
+  min-width: 0;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  padding: 10px;
+  background: #ffffff;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.upload-policy-item.warning {
+  background: #fff0ee;
+}
+
+.upload-policy-item span,
+.upload-policy-item small {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.upload-policy-item strong {
+  display: block;
+  overflow: hidden;
+  margin: 5px 0 3px;
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scope-stats {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.scope-stats span {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.scope-stats strong {
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.scope-actions {
+  margin-top: 14px;
+}
+
+.user-tag-actions .tag-chip {
+  cursor: pointer;
+}
+
+.user-panel-actions {
+  margin-top: 18px;
+}

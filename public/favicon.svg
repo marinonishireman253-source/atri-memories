@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ATRI Memories">
+  <defs>
+    <linearGradient id="sky" x1="12" y1="6" x2="52" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#dff7ff"/>
+      <stop offset="0.56" stop-color="#75c7e8"/>
+      <stop offset="1" stop-color="#2f6f97"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#08243a"/>
+  <path d="M18 43c5.8-11 9.8-18 14-28 4.1 10 8.3 17 14 28h-8.5l-2.6-6.1h-6l-2.5 6.1H18Z" fill="url(#sky)"/>
+  <path d="M30.8 30.5h2.4L32 27.3l-1.2 3.2Z" fill="#08243a"/>
+  <path d="M17 47h30" stroke="#dff7ff" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+</svg>

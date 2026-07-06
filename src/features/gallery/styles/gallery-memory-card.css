@@ -1,0 +1,285 @@
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--gallery-masonry-columns, 5), minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(12px, 1.35vw, 18px);
+}
+
+.gallery-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.35vw, 18px);
+}
+
+.memory-card {
+  width: 100%;
+  min-width: 0;
+  position: relative;
+  border: var(--border-tech);
+  border-radius: 8px;
+  overflow: visible; /* Let the tape overflow */
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  padding: 8px 8px 12px; /* Polaroid card border padding */
+  margin-top: 14px; /* Space for the tape */
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.memory-card::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2.5deg);
+  width: clamp(55px, 8vw, 78px);
+  height: 16px;
+  background: rgba(0, 229, 255, 0.42); /* Washi tape cyan */
+  border-left: 2.5px dashed rgba(255, 255, 255, 0.55);
+  border-right: 2.5px dashed rgba(255, 255, 255, 0.55);
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.12);
+  z-index: 12;
+  pointer-events: none;
+}
+
+.memory-card:nth-child(2n)::before {
+  background: rgba(255, 94, 126, 0.42); /* Washi tape pink */
+  transform: translateX(-50%) rotate(3deg);
+}
+
+.memory-card.selected {
+  outline: 3px solid var(--cyber-pink);
+  outline-offset: 2px;
+  box-shadow: 5px 5px 0px var(--cyber-pink);
+}
+
+.memory-select {
+  position: absolute;
+  z-index: 10;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 4px;
+  padding: 7px 10px;
+  color: var(--ink);
+  background: #ffffff;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: all 150ms ease;
+}
+
+.memory-select:hover {
+  background: #fff6f8;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.memory-activity {
+  position: absolute;
+  z-index: 10;
+  top: 12px;
+  right: 12px;
+  border-radius: 4px;
+  padding: 7px 10px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.memory-activity.success {
+  color: var(--ink);
+  background: #e1f9f2;
+}
+
+.memory-activity.warning {
+  color: var(--ink);
+  background: #fff4d6;
+}
+
+.memory-activity.favorite {
+  color: var(--ink);
+  background: #fff0f5;
+}
+
+.memory-select input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.memory-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0px var(--ink);
+}
+
+.memory-card.selected:hover {
+  outline: 3px solid var(--cyber-pink);
+  outline-offset: 2px;
+  box-shadow: 8px 8px 0px var(--cyber-pink);
+}
+
+.memory-open {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.memory-open:disabled {
+  cursor: wait;
+}
+
+.memory-image-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, rgba(235, 247, 252, 0.8), rgba(198, 222, 232, 0.5)),
+    rgba(167, 202, 216, 0.3);
+}
+
+.memory-image-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(110deg, transparent 0 24%, rgba(255, 255, 255, 0.45) 42%, transparent 62%),
+    linear-gradient(135deg, rgba(214, 242, 251, 0.92), rgba(237, 250, 255, 0.5));
+  background-size: 220% 100%, 100% 100%;
+  opacity: 1;
+  animation: memory-image-skeleton 1.4s ease-in-out infinite;
+  transition: opacity 240ms ease;
+}
+
+.memory-card.image-ready .memory-image-frame::before {
+  opacity: 0;
+}
+
+.memory-image-frame img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 350ms ease-in-out, transform 450ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.memory-card.image-ready .memory-image-frame img {
+  opacity: 1;
+}
+
+.memory-card:hover .memory-image-frame img {
+  transform: scale(1.04);
+}
+
+.holographic-shine {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    125deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.15) 42%,
+    rgba(255, 255, 255, 0.3) 46%,
+    rgba(255, 141, 168, 0.18) 50%,
+    rgba(255, 255, 255, 0.3) 54%,
+    rgba(255, 255, 255, 0.15) 58%,
+    transparent 65%
+  ) no-repeat;
+  background-size: 300% 100%;
+  background-position: -200% 0;
+  mix-blend-mode: overlay;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.memory-card:hover .holographic-shine,
+.featured-card:hover .holographic-shine {
+  opacity: 1;
+  animation: holographic-foil-sweep 1.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+@keyframes holographic-foil-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.memory-card-caption {
+  position: relative; /* relative polaroid caption flow */
+  margin-top: 10px;
+  padding: 6px 4px 2px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  opacity: 1; /* Always visible */
+  transform: none;
+  transition: none;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.memory-card:hover .memory-card-caption {
+  opacity: 1;
+  transform: none;
+}
+
+.card-title-text {
+  color: var(--ink); /* Dark ink title */
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  transition: color 180ms ease;
+}
+
+.memory-card:hover .card-title-text {
+  color: var(--cyber-pink);
+}
+
+.card-date-text {
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  display: block;
+}
+
+.memory-open:focus-visible {
+  outline: 3px solid rgba(37, 163, 205, 0.6);
+  outline-offset: -3px;
+}
+
+.memory-body {
+  display: none;
+  padding: 17px 18px 20px;
+}

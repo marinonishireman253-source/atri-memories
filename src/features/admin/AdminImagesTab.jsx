@@ -249,7 +249,7 @@ export function AdminImagesTab({
           <div className="empty-state compact">
             <span aria-hidden="true">◇</span>
             <h3>正在读取后台图片</h3>
-            <p>图片数量较多时会按服务端分页加载。</p>
+            <p>图片数量较多时会分批加载，请稍候。</p>
           </div>
         )}
         {!loadingAdminMemories && adminMemories.length === 0 && (

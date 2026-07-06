@@ -86,7 +86,7 @@ async function main() {
   statusLine(true, '访客桌面端 smoke', '始终可跑（demo 模式）');
   statusLine(true, '访客手机视口 smoke', '始终可跑（demo 模式）');
   if (supabaseUrl && publishableKey) {
-    const shareMemory = await checkShareMemoryPreview({ supabaseUrl, publishableKey });
+    const shareMemory = await checkShareMemoryPreview({ supabaseUrl, publishableKey, publicSiteUrl });
     const detail = shareMemoryDetail(shareMemory);
     statusLine(shareMemory.ok, shareMemory.memoryId ? 'share-memory 真实预览' : 'share-memory 远端检查', shareMemory.ok
       ? detail
@@ -99,6 +99,15 @@ async function main() {
         shareMemory.isSupabaseTextPlainHtml
           ? `${shareMemory.contentType}（Supabase GET HTML 会重写为 text/plain；正文 meta 已通过）`
           : shareMemory.contentType || '未返回',
+      );
+      statusLine(
+        Boolean(publicSiteUrl && shareMemory.hasPublicSiteRedirect),
+        'share-memory 主站回跳',
+        publicSiteUrl
+          ? shareMemory.hasPublicSiteRedirect
+            ? shareMemory.publicSiteRedirectUrl
+            : '远端响应未输出与 VITE_PUBLIC_SITE_URL 匹配的回跳'
+          : '缺少 VITE_PUBLIC_SITE_URL，无法比对',
       );
     }
   } else {

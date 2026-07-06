@@ -1,0 +1,17 @@
+@media (max-width: 760px) {
+  .admin-demo-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-demo-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-grid,
+  .launch-config-grid,
+  .auth-config-grid,
+  .backup-asset-grid,
+  .backup-plan-grid {
+    grid-template-columns: 1fr;
+  }
+}

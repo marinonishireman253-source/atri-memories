@@ -1,3 +1,4 @@
+import { execFile } from 'node:child_process';
 import { createClient } from '@supabase/supabase-js';
 import {
   existsSync,
@@ -9,6 +10,7 @@ import {
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, join, relative } from 'node:path';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -16,6 +18,8 @@ const shanghaiTimeZone = 'Asia/Shanghai';
 const defaultTags = ['Codex', '开发日志', '自动日报'];
 const defaultMood = '⭐';
 const maxSummaryLength = 180;
+const execFileAsync = promisify(execFile);
+const defaultSecretCommandTimeoutMs = 15000;
 
 function shanghaiParts(date) {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -164,6 +168,73 @@ function publicSessionSummary(session) {
     return trimSummary(raw);
   }
   return '推进了一轮本地项目协作，公开日志只保留结果摘要。';
+}
+
+function publicProjectName(project) {
+  if (project.includes('ATRI 网站')) return 'ATRI 网站';
+  if (project.includes('DarkVillage')) return '本地游戏项目';
+  if (project.includes('Codex 本地配置')) return '本机 Codex 配置';
+  if (project.includes('AI 投稿设计')) return 'AI 投稿设计';
+  return '其他本地项目';
+}
+
+function uniqueValues(values) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function atriWorkAreas(sessions) {
+  const text = sessions.map((session) => sanitizeText(session.summary || '')).join('\n');
+  const areas = [];
+  if (/admin|后台|管理|权限|登录|auth/i.test(text)) areas.push('后台与访问控制');
+  if (/case.?study|案例|项目案例|简历/i.test(text)) areas.push('项目案例内容');
+  if (/mobile|responsive|手机版|移动端|响应式/i.test(text)) areas.push('移动端体验');
+  if (/blog|日报|自动化|automation|Codex/i.test(text)) areas.push('自动化流程');
+  if (/deploy|发布|上线|同步|preflight|smoke|check|测试|验证/i.test(text)) areas.push('发布与验证');
+  return uniqueValues(areas).slice(0, 4);
+}
+
+function publicProjectSummary(project, sessions) {
+  if (project === 'ATRI 网站') {
+    const areas = atriWorkAreas(sessions);
+    const areaText = areas.length ? `围绕${areas.join('、')}做了实现、审查和验证` : '推进了站点维护和自动化验证';
+    return `推进了 ATRI 网站维护：${areaText}；公开日志只保留可发布的结果摘要。`;
+  }
+  if (project === '本地游戏项目') {
+    return '推进了本地游戏项目的实现、验证或交接整理；公开日志只保留高层进展。';
+  }
+  if (project === '本机 Codex 配置') {
+    return '整理了本机 Codex 配置状态并完成恢复验证；公开日志只保留高层进展。';
+  }
+  if (project === 'AI 投稿设计') {
+    return '推进了投稿素材与图片工作流整理；公开日志只保留结果摘要。';
+  }
+  return '推进了若干本地项目协作线程；公开日志只保留结果摘要。';
+}
+
+function verificationAreas(sessions) {
+  const tools = new Set(sessions.flatMap((session) => Array.isArray(session.tools) ? session.tools : []));
+  const areas = [];
+  if (tools.has('exec_command')) areas.push('命令行检查和测试');
+  if (tools.has('js')) areas.push('脚本自动化检查');
+  if (tools.has('view_image')) areas.push('截图或图片核对');
+  if (tools.has('load_workspace_dependencies')) areas.push('文档/表格运行环境检查');
+  return areas;
+}
+
+function groupPublicSessions(sessions) {
+  const buckets = new Map();
+  for (const session of sessions) {
+    const name = publicProjectName(session.project || '');
+    if (!buckets.has(name)) buckets.set(name, []);
+    buckets.get(name).push(session);
+  }
+  return Array.from(buckets.entries()).map(([project, items]) => ({
+    project,
+    sessions: items,
+    count: items.length,
+    firstTime: items[0]?.startTime || '',
+    lastTime: items.at(-1)?.endTime || items.at(-1)?.startTime || '',
+  }));
 }
 
 function sessionFromFile(file, start, end) {
@@ -322,31 +393,40 @@ export function renderBlogMarkdown(input = {}) {
   }
   const { date = defaultDate(), sessions = [] } = input;
   const count = sessions.length;
+  const buckets = groupPublicSessions(sessions);
+  const verification = verificationAreas(sessions);
   const lines = [
-    `今天 Codex 主要推进了 ${count} 个工作线程。`,
+    `今天 Codex 主要推进了 ${count} 个工作线程，归并为 ${buckets.length} 类公开日志。`,
     '',
-    '## 推进记录',
+    '## 今日推进',
     '',
   ];
 
-  for (const session of sessions) {
+  for (const bucket of buckets) {
     const meta = [
-      session.project,
-      session.startTime,
+      bucket.project,
+      bucket.count > 1 ? `${bucket.count} 个线程` : '',
+      bucket.firstTime,
     ].filter(Boolean).join(' · ');
-    lines.push(`- **${sanitizeText(meta || 'Codex 工作')}**：${publicSessionSummary(session)}`);
-    if (session.tools?.length) {
-      lines.push(`  - 工具侧重点：${session.tools.slice(0, 6).map((tool) => `\`${sanitizeText(tool)}\``).join('、')}`);
-    }
+    lines.push(`- **${sanitizeText(meta || 'Codex 工作')}**：${publicProjectSummary(bucket.project, bucket.sessions)}`);
+  }
+
+  if (verification.length) {
+    lines.push(
+      '',
+      '## 验证与检查',
+      '',
+      `- 今日记录中出现的验证侧重点：${verification.join('、')}。`,
+    );
   }
 
   lines.push(
     '',
-    '## 自动审查',
+    '## 未发布与审查',
     '',
     `- 日期：${sanitizeText(date)}`,
-    '- 已移除本地绝对路径、账号、主机、密钥形态和原始对话片段。',
-    '- 只保留可公开的项目级进展摘要。',
+    '- 未公开原始提示词、完整对话、本地绝对路径、账号、主机或凭据。',
+    '- 游戏项目和其他未公开项目只保留高层进展，不公开内部设定或细节。',
   );
 
   return sanitizeText(lines.join('\n'));
@@ -432,7 +512,7 @@ function parseSessionJson(value) {
 }
 
 function parseEnvFile(path) {
-  if (!existsSync(path)) return {};
+  if (!path || !existsSync(path)) return {};
   const result = {};
   for (const line of readFileSync(path, 'utf8').split('\n')) {
     const trimmed = line.trim();
@@ -445,26 +525,82 @@ function parseEnvFile(path) {
   return result;
 }
 
+function automationPrivateEnvPath(env = process.env) {
+  const codexHome = env.CODEX_HOME || join(homedir(), '.codex');
+  return join(codexHome, 'automations', 'atri-codex', 'publish.env');
+}
+
 function localEnv() {
+  const env = process.env;
   return {
     ...parseEnvFile(join(root, '.env')),
     ...parseEnvFile(join(root, '.env.local')),
-    ...process.env,
+    ...parseEnvFile(automationPrivateEnvPath(env)),
+    ...parseEnvFile(env.CODEX_DAILY_BLOG_ENV_FILE),
+    ...env,
   };
+}
+
+async function runShellCommand(command, { timeoutMs = defaultSecretCommandTimeoutMs } = {}) {
+  const { stdout } = await execFileAsync('/bin/sh', ['-lc', command], {
+    timeout: timeoutMs,
+    maxBuffer: 64 * 1024,
+    env: process.env,
+  });
+  return stdout;
+}
+
+function firstOutputLine(value) {
+  return String(value ?? '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean) || '';
+}
+
+function secretCommandTimeout(env) {
+  const timeout = Number(env.CODEX_DAILY_BLOG_SERVICE_ROLE_KEY_COMMAND_TIMEOUT_MS);
+  return Number.isFinite(timeout) && timeout > 0 ? timeout : defaultSecretCommandTimeoutMs;
+}
+
+async function serviceRoleKeyFromCommand(env, runSecretCommand) {
+  const command = env.CODEX_DAILY_BLOG_SERVICE_ROLE_KEY_COMMAND;
+  if (!command) return '';
+  try {
+    const output = await runSecretCommand(command, { timeoutMs: secretCommandTimeout(env) });
+    const key = firstOutputLine(output);
+    if (!key) throw new Error('empty secret command output');
+    return key;
+  } catch {
+    throw new Error('私有服务端写入密钥命令执行失败。');
+  }
 }
 
 export async function createAuthorizedClient({
   env = process.env,
   createClientFactory = createClient,
+  runSecretCommand = runShellCommand,
 } = {}) {
   const url = env.VITE_SUPABASE_URL;
-  const key = env.VITE_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) {
-    throw new Error('缺少 VITE_SUPABASE_URL 或 VITE_SUPABASE_PUBLISHABLE_KEY。');
-  }
-
   const session = parseSessionJson(env.CODEX_DAILY_BLOG_SESSION_JSON)
     || parseSessionJson(env.SMOKE_ADMIN_SESSION_JSON);
+  const hasPasswordLogin = Boolean(env.SMOKE_ADMIN_EMAIL && env.SMOKE_ADMIN_PASSWORD);
+  let serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey && !session && !hasPasswordLogin) {
+    serviceRoleKey = await serviceRoleKeyFromCommand(env, runSecretCommand);
+  }
+  const key = serviceRoleKey || env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) {
+    throw new Error('缺少 VITE_SUPABASE_URL 或可用的 Supabase 写入密钥。');
+  }
+
+  if (serviceRoleKey) {
+    return createClientFactory(url, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
 
   const client = createClientFactory(url, key, {
     auth: {
@@ -502,6 +638,10 @@ function reportPath(outputDir, date, status) {
   return join(outputDir, `${date}-${status}.md`);
 }
 
+function inputFileCount(sessions) {
+  return new Set(sessions.map((session) => session.inputFile).filter(Boolean)).size;
+}
+
 function writeReport({ outputDir, date, status, title, body }) {
   mkdirSync(outputDir, { recursive: true });
   const file = reportPath(outputDir, date, status);
@@ -509,16 +649,20 @@ function writeReport({ outputDir, date, status, title, body }) {
   return file;
 }
 
-function reportMarkdown({ date, state, sessions, publishResult, mode }) {
+export function reportMarkdown({ date, state, sessions, publishResult, mode, generatedAt = new Date() }) {
   const lines = [
     `# Codex 每日博客 ${date}`,
     '',
     `- 状态：${state.status}`,
     `- 模式：${mode}`,
     `- 输入线程：${sessions.length}`,
+    `- 输入文件：${inputFileCount(sessions)}`,
   ];
   if (state.post?.title) lines.push(`- 标题：${state.post.title}`);
-  if (publishResult) lines.push(`- 发布动作：${publishResult.action}`);
+  if (publishResult) {
+    lines.push(`- 发布动作：${publishResult.action}`);
+    lines.push(`- 发布时间：${formatShanghaiMinute(generatedAt)}`);
+  }
   if (state.reason) lines.push(`- 原因：${state.reason}`);
   if (state.review) lines.push(`- 审查：${state.review.ok ? '通过' : `阻断 ${state.review.reasons.join(', ')}`}`);
   if (state.post?.content) {
@@ -543,7 +687,7 @@ export async function runDailyBlog({
       outputDir,
       date,
       status: 'skipped',
-      body: reportMarkdown({ date, state, sessions, mode: publish ? 'publish' : 'dry-run' }),
+      body: reportMarkdown({ date, state, sessions, mode: publish ? 'publish' : 'dry-run', generatedAt: now }),
     });
     return { status: 'skipped', path, sessions };
   }
@@ -553,7 +697,7 @@ export async function runDailyBlog({
       outputDir,
       date,
       status: 'blocked',
-      body: reportMarkdown({ date, state, sessions, mode: publish ? 'publish' : 'dry-run' }),
+      body: reportMarkdown({ date, state, sessions, mode: publish ? 'publish' : 'dry-run', generatedAt: now }),
     });
     return { status: 'blocked', path, sessions, review: state.review };
   }
@@ -563,18 +707,42 @@ export async function runDailyBlog({
       outputDir,
       date,
       status: 'dry-run',
-      body: reportMarkdown({ date, state, sessions, mode: 'dry-run' }),
+      body: reportMarkdown({ date, state, sessions, mode: 'dry-run', generatedAt: now }),
     });
     return { status: 'dry-run', path, post: state.post, sessions, review: state.review };
   }
 
-  const client = await createAuthorizedClient({ env });
+  let client;
+  try {
+    client = await createAuthorizedClient({ env });
+  } catch (error) {
+    const blockedState = {
+      ...state,
+      status: 'blocked',
+      reason: `发布写入失败：${sanitizeText(error.message || '缺少可用的博客写入会话。')}`,
+    };
+    const path = writeReport({
+      outputDir,
+      date,
+      status: 'blocked',
+      body: reportMarkdown({ date, state: blockedState, sessions, mode: 'publish', generatedAt: now }),
+    });
+    return { status: 'blocked', path, post: state.post, sessions, review: state.review, error };
+  }
+
   const publishResult = await publishBlogPost({ client, post: state.post });
   const path = writeReport({
     outputDir,
     date,
     status: 'published',
-    body: reportMarkdown({ date, state: { ...state, status: 'published' }, sessions, publishResult, mode: 'publish' }),
+    body: reportMarkdown({
+      date,
+      state: { ...state, status: 'published' },
+      sessions,
+      publishResult,
+      mode: 'publish',
+      generatedAt: now,
+    }),
   });
   return { status: 'published', path, post: state.post, publishResult, sessions, review: state.review };
 }

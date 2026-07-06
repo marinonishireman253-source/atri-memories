@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { defaultTagPresets } from '../../lib/tags.js';
 import { GalleryFilters } from './GalleryFilters.jsx';
 import { GalleryManageBar } from './GalleryManageBar.jsx';
+import { GalleryMobileFilterPanel } from './GalleryMobileFilterPanel.jsx';
 import { GalleryScopeBar } from './GalleryScopeBar.jsx';
 import { GalleryEmptyState, GalleryLoadingCards } from './GalleryStates.jsx';
 import { MemoryCard } from './MemoryCard.jsx';
@@ -163,41 +164,55 @@ export function Gallery({
           </button>
         </div>
 
-        <GalleryFilters
+        <div className="gallery-desktop-controls">
+          <GalleryFilters
+            memories={memories}
+            loading={loading}
+            totalCount={totalCount}
+            filters={filters}
+            availableTags={availableTags}
+            onFiltersChange={onFiltersChange}
+          />
+          <GalleryScopeBar
+            summary={scopeSummary}
+            onFiltersChange={onFiltersChange}
+            onShowMyImages={onShowMyImages}
+            onShowFavorites={onShowFavorites}
+            onShowAllImages={onShowAllImages}
+            onResetFilters={onResetFilters}
+          />
+          <GalleryManageBar
+            enabled={manageState.enabled}
+            busy={manageState.busy}
+            selectedCount={manageState.selectedCount}
+            totalCount={manageState.totalCount}
+            confirmingDelete={manageState.confirmingDelete}
+            notice={galleryManageNotice}
+            onSelectAll={onSelectVisibleMemories}
+            onClearSelection={onClearSelectedMemories}
+            onDeleteSelected={onDeleteSelectedMemories}
+          />
+        </div>
+
+        {/* Task 3 applies CSS gating for desktop/mobile filter visibility. */}
+        <GalleryMobileFilterPanel
           memories={memories}
           loading={loading}
           totalCount={totalCount}
           filters={filters}
           availableTags={availableTags}
-          onFiltersChange={onFiltersChange}
-        />
-        <GalleryScopeBar
-          summary={scopeSummary}
+          scopeSummary={scopeSummary}
+          manageState={manageState}
+          galleryManageNotice={galleryManageNotice}
           onFiltersChange={onFiltersChange}
           onShowMyImages={onShowMyImages}
           onShowFavorites={onShowFavorites}
           onShowAllImages={onShowAllImages}
           onResetFilters={onResetFilters}
+          onSelectVisibleMemories={onSelectVisibleMemories}
+          onClearSelectedMemories={onClearSelectedMemories}
+          onDeleteSelectedMemories={onDeleteSelectedMemories}
         />
-        <GalleryManageBar
-          enabled={manageState.enabled}
-          busy={manageState.busy}
-          selectedCount={manageState.selectedCount}
-          totalCount={manageState.totalCount}
-          confirmingDelete={manageState.confirmingDelete}
-          notice={galleryManageNotice}
-          onSelectAll={onSelectVisibleMemories}
-          onClearSelection={onClearSelectedMemories}
-          onDeleteSelected={onDeleteSelectedMemories}
-        />
-        {filters.ownerId !== 'all' && (
-          <div className="active-filter">
-            <span>正在查看上传者：{filters.ownerLabel || filters.ownerId}</span>
-            <button type="button" onClick={onClearOwnerFilter}>
-              清除
-            </button>
-          </div>
-        )}
       </div>
 
       {loading && memories.length === 0 ? (

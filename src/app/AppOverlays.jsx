@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import {
   AdminPanel,
   AuthModal,
@@ -18,7 +19,7 @@ export function AppOverlays({
   viewer = {},
   blogEditor = {},
 }) {
-  return (
+  const overlayContent = (
     <>
       {blogEditor.open && (
         <Suspense fallback={null}>
@@ -147,4 +148,10 @@ export function AppOverlays({
       )}
     </>
   );
+
+  if (typeof document !== 'undefined' && document.body) {
+    return createPortal(overlayContent, document.body);
+  }
+
+  return overlayContent;
 }

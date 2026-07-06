@@ -263,7 +263,7 @@ for (const token of ['docs/GIT_WORKFLOW.md', 'npm run git:check', 'npm run check
 }
 
 const readmeProjectChecks = read('README.md');
-for (const token of ['npm run mobile:check', 'npm run mobile:check:test', 'npm run project:check', 'npm run admin-demo:test', 'npm run case-study:test', '项目案例', '运营管理路径', 'output/playwright/']) {
+for (const token of ['npm run build', 'npm run functions:check', 'npm run verify', 'npm run project:check', 'npm run mobile:check', 'npm run smoke:local', '本地质量检查', '项目级完整本地检查']) {
   if (!readmeProjectChecks.includes(token)) fail(`README 缺少项目检查说明：${token}`);
 }
 
@@ -294,6 +294,11 @@ if (exists('.atri-admin-delete-code')) {
 const sourceFiles = walk('.').filter((file) =>
   /\.(js|jsx|ts|tsx|mjs|css|md|toml|sql)$/.test(file) && file !== 'scripts/quality-check.mjs',
 );
+const serviceRoleAllowedFiles = new Set([
+  'scripts/assign-legacy-memories-owner.mjs',
+  'scripts/codex-daily-blog.mjs',
+  'tests/codexDailyBlog.test.js',
+]);
 
 for (const file of sourceFiles) {
   const content = read(file);
@@ -303,7 +308,7 @@ for (const file of sourceFiles) {
   if (
     !file.startsWith('supabase/functions/')
     && !file.startsWith('supabase/migrations/')
-    && file !== 'scripts/assign-legacy-memories-owner.mjs'
+    && !serviceRoleAllowedFiles.has(file)
     && /SUPABASE_SERVICE_ROLE_KEY|service_role/i.test(content)
   ) {
     fail(`非 Edge Function 文件出现 service role 相关文本：${file}`);
@@ -315,6 +320,17 @@ for (const token of ['@import "./styles/foundation.css"', '@import "./features/g
   if (!stylesEntry.includes(token)) fail(`样式入口缺少分层导入：${token}`);
 }
 
+const adminStyleSources = [
+  'src/features/admin/admin.css',
+  'src/features/admin/styles/admin-shell.css',
+  'src/features/admin/styles/admin-overview.css',
+  'src/features/admin/styles/admin-controls.css',
+  'src/features/admin/styles/admin-settings.css',
+  'src/features/admin/styles/admin-tables.css',
+  'src/features/admin/styles/admin-anime-overrides.css',
+  'src/features/admin/styles/admin-responsive.css',
+];
+
 const styleSources = [
   'src/styles/foundation.css',
   'src/styles/app-shell.css',
@@ -324,7 +340,7 @@ const styleSources = [
   'src/features/upload/upload.css',
   'src/features/auth/auth.css',
   'src/features/user/user.css',
-  'src/features/admin/admin.css',
+  ...adminStyleSources,
   'src/styles/responsive.css',
 ];
 const styles = styleSources.map((file) => read(file)).join('\n');
@@ -418,7 +434,7 @@ for (const token of ['buildSiteHealthChecks', 'healthHeadline', 'readinessChecks
 }
 
 const adminBackup = read('src/lib/adminBackup.js');
-for (const token of ['backupAssets', 'backupRecoveryPlan', 'backupOperationalNotes', 'Postgres 业务数据', 'Storage 图片文件', 'Auth 账号状态', '部署与站点配置']) {
+for (const token of ['backupAssets', 'backupRecoveryPlan', 'backupOperationalNotes', '业务数据', '图片文件', '账号状态', '部署与站点配置']) {
   if (!adminBackup.includes(token)) fail(`adminBackup 缺少导出/备份策略模型：${token}`);
 }
 
@@ -443,7 +459,7 @@ for (const token of ['normalizeInvitePolicy', 'inviteLimitSummary', 'inviteUsage
 }
 
 const adminLaunchReadiness = read('src/lib/adminLaunchReadiness.js');
-for (const token of ['launchConfigItems', 'buildLaunchReadinessChecks', 'launchReadinessHeadline', '推荐 Site URL', '分享预览方案', 'share-memory Edge Function', '上线前仍需要一次完整手工验收']) {
+for (const token of ['launchConfigItems', 'buildLaunchReadinessChecks', 'launchReadinessHeadline', '站点入口地址', '分享预览方案', '分享预览仍使用主站图片页', '上线前仍需要一次完整手工验收']) {
   if (!adminLaunchReadiness.includes(token)) fail(`adminLaunchReadiness 缺少上线准备模型：${token}`);
 }
 
@@ -989,7 +1005,7 @@ for (const token of ['邀请用户', '发送邀请', '邀请中', 'inviteLimitSu
 const adminSettingsTab = read('src/features/admin/AdminSettingsTab.jsx');
 const adminSettingsSections = read('src/features/admin/AdminSettingsSections.jsx');
 const adminSettingsSurface = `${adminSettingsTab}\n${adminSettingsSections}`;
-for (const token of ['上线准备', 'launchConfigItems', 'launchReadinessHeadline', 'Auth 配置提醒', '公开注册策略', '推荐 Site URL', 'buildSiteHealthChecks', 'readinessChecks', '站点健康检查', 'backupAssets', 'backupRecoveryPlan', '导出与备份策略', 'monitoringMetricDefinitions', 'buildRuntimeMonitoringItems', '运行监控口径', 'retentionAssets', 'retentionActionQueue', '数据留存与清理策略', 'abuseGuardrails', 'abuseGaps', '反滥用与频率限制口径', '当前缺口与下一步', '每小时上传上限（张）', '每日上传上限（张）', '每小时邀请上限（封）', '每日邀请上限（封）']) {
+for (const token of ['上线准备', 'launchConfigItems', 'launchReadinessHeadline', '登录配置提醒', '公开注册策略', '站点入口地址', 'buildSiteHealthChecks', 'readinessChecks', '站点健康检查', 'backupAssets', 'backupRecoveryPlan', '导出与备份策略', 'monitoringMetricDefinitions', 'buildRuntimeMonitoringItems', '运行监控口径', 'retentionAssets', 'retentionActionQueue', '数据留存与清理策略', 'abuseGuardrails', 'abuseGaps', '反滥用与频率限制口径', '当前缺口与下一步', '每小时上传上限（张）', '每日上传上限（张）', '每小时邀请上限（封）', '每日邀请上限（封）']) {
   if (!adminSettingsSurface.includes(token)) fail(`AdminSettingsTab 缺少站点设置模块：${token}`);
 }
 for (const token of ['SettingsFields', 'SettingsTagPreview', 'SettingsLaunchReadiness', 'SettingsAuthReminder', 'SettingsOperationsPanel', 'HealthCheckList', 'AdminDisclosureSection']) {
@@ -1225,7 +1241,7 @@ if (/saving locally|deleting locally|inserting locally/.test(blogModel)) {
 }
 
 const readme = read('README.md');
-for (const phrase of ['管理后台', '精选记忆', '批量下载 ZIP', '举报图片', '公开注册', '邀请用户', '邀请中', '状态提示', '上线前配置', '同图重复待处理举报会被抑制', '每小时上传上限', '每日上传上限', '每小时邀请上限', '每日邀请上限', '上线准备', '运行监控口径', '数据留存与清理策略', 'architecture:doctor', 'product:doctor', 'deploy:doctor', 'functions:check', 'release:preflight', 'completion:audit', 'launch:doctor', 'qa:init', 'qa:doctor', 'smoke:doctor', 'smoke:local', 'smoke:session', 'SMOKE_ADMIN_SESSION_JSON', 'SMOKE_TESTING_GUIDE.md', 'MANUAL_QA_TEMPLATE.md', 'docs/manual-qa-runs/', 'share-memory', 'VITE_PUBLIC_SITE_URL', 'VITE_SHARE_LINK_MODE']) {
+for (const phrase of ['公开画廊', '图片查看器', '账号空间', '批量上传', '内容治理', '管理后台', '响应式体验', '本地质量检查', 'React 19', 'Vite 6', 'Supabase JS', 'Edge Functions', 'Playwright Core', 'npm run project:check', 'npm run deploy:aliyun', 'VITE_PUBLIC_SITE_URL', 'VITE_SHARE_LINK_MODE', 'SMOKE_ADMIN_*', 'ALIYUN_*', 'your-site.example.com', 'docs/GIT_WORKFLOW.md', 'docs/SITE_ARCHITECTURE_PLAN.md', 'docs/SMOKE_TESTING_GUIDE.md', '公开仓库注意事项']) {
   if (!readme.includes(phrase)) fail(`README 缺少说明：${phrase}`);
 }
 

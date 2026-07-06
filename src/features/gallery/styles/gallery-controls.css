@@ -1,0 +1,222 @@
+.gallery-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 150px auto;
+  align-items: end;
+  gap: 13px;
+  margin: -7px 0 26px;
+}
+
+.gallery-scope-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: none;
+  border-radius: 0;
+  margin: -6px 0 22px;
+  padding: 0;
+  background: transparent;
+}
+
+.gallery-manage-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  border: none;
+  border-radius: 0;
+  margin: -2px 0 22px;
+  padding: 0;
+  background: transparent;
+}
+
+.gallery-manage-copy strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.gallery-manage-copy p {
+  margin: 6px 0 0;
+  color: #6e6d78;
+  font-size: 0.79rem;
+  line-height: 1.6;
+}
+
+.gallery-manage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.gallery-manage-notice {
+  width: 100%;
+}
+
+.gallery-scope-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.gallery-scope-copy {
+  min-width: 0;
+}
+
+.gallery-scope-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.gallery-scope-head strong {
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.gallery-scope-copy p {
+  margin: 0;
+  color: #587689;
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.gallery-scope-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.gallery-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gallery-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  gap: 7px;
+  border: 1px solid rgba(117, 178, 205, 0.26);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #296c89;
+  background: rgba(255, 255, 255, 0.62);
+  font-size: 0.74rem;
+  line-height: 1.2;
+}
+
+.gallery-filter-chip button {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  color: #0d6b8c;
+  background: rgba(37, 159, 199, 0.13);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.gallery-filter-chip button:hover {
+  background: rgba(37, 159, 199, 0.22);
+}
+
+.search-field,
+.date-filter {
+  min-width: 0;
+  color: #536d80;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.search-field input,
+.date-filter select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(157, 190, 205, 0.48);
+  border-radius: 14px;
+  outline: none;
+  color: #193348;
+  background: rgba(255, 255, 255, 0.58);
+  padding: 0 13px;
+  font-size: 0.86rem;
+  letter-spacing: 0;
+}
+
+.search-field input:focus,
+.date-filter select:focus {
+  border-color: rgba(31, 160, 205, 0.65);
+  box-shadow: 0 0 0 3px rgba(31, 160, 205, 0.13);
+}
+
+.result-count {
+  margin: 0 0 10px;
+  color: #668295;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.active-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  margin: -9px 0 24px;
+  padding: 6px 12px;
+  color: var(--ink);
+  background: #e1f7fc;
+  font-size: 0.78rem;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-weight: 600;
+}
+
+.active-filter button {
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  color: var(--ink);
+  background: #ffffff;
+  padding: 3px 8px;
+  box-shadow: 1px 1px 0 var(--ink);
+  font-weight: 700;
+  font-size: 0.74rem;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active-filter button:hover {
+  background: var(--color-primary);
+  color: var(--ink);
+  transform: translate(-0.5px, -0.5px);
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+}
+
+.active-filter button:active {
+  transform: translate(0.5px, 0.5px);
+  box-shadow: 0.5px 0.5px 0 var(--ink);
+}
+
+.gallery-desktop-controls {
+  display: contents;
+}
+
+.gallery-mobile-filter-panel {
+  display: none;
+}
+
+.gallery-mobile-advanced-filters[hidden] {
+  display: none !important;
+}

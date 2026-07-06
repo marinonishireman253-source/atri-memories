@@ -83,6 +83,9 @@ on conflict do nothing;
 常用检查命令：
 
 ```bash
+npm run flow:doctor
+npm run public:snapshot:doctor
+npm run public:snapshot:export -- --dry-run
 npm run build
 npm run functions:check
 npm run verify
@@ -95,10 +98,14 @@ npm run smoke:local
 
 | 命令 | 覆盖范围 |
 | --- | --- |
+| `npm run flow:doctor` | 开工、合并或发布前检查 Git/worktree、主线差异和依赖状态 |
+| `npm run public:snapshot:doctor` | 检查本地完整历史与 `origin/main` 公开快照历史是否保持双轨隔离 |
+| `npm run public:snapshot:export -- --dry-run` | 从当前开发树模拟导出公开快照，并阻断真实路径、主机、Supabase 项目引用和凭据形态 |
 | `npm run build` | 前端生产构建 |
 | `npm run functions:check` | Edge Functions TypeScript / Deno 检查 |
 | `npm run verify` | Git 规则、构建、函数检查、架构检查和产品检查 |
 | `npm run project:check` | 项目级完整本地检查，包含移动端和 smoke 脚本测试 |
+| `npm run aliyun:runtime:doctor` | 通过本机环境变量连接阿里云，检查固定规格运行时、SSH 收口与限速、fail2ban、证书续期、snapd、Docker 与 Supabase 容器健康 |
 | `npm run mobile:check` | 使用真实手机视口检查关键页面布局 |
 | `npm run smoke:local` | 本地 demo 模式浏览器回归，不依赖真实账号 |
 | `npm run smoke` | 本地浏览器回归，并在环境允许时补充云端分享页与登录场景 |
@@ -111,14 +118,14 @@ npm run smoke:local
 npm run deploy:aliyun
 ```
 
-脚本会在本地构建 `dist/`，打包前端产物和 Edge Functions，并同步到目标服务器。部署目标、SSH 用户、端口、密钥、站点目录、函数目录和公开站点 URL 都必须通过本机环境变量或未提交的 `.env` 提供。
+脚本会在本地构建 `dist/`，打包前端产物和 Edge Functions，并同步到目标服务器。部署成功后默认继续运行 `npm run aliyun:runtime:doctor -- --strict`，用固定规格服务器的运行时健康、SSH 暴露面和后端端口收口状态阻断有风险的发布。部署目标、SSH 用户、端口、密钥、站点目录、函数目录和公开站点 URL 都必须通过本机环境变量或未提交的 `.env` 提供。
 
 示例只使用占位符：
 
 ```bash
 VITE_PUBLIC_SITE_URL=https://your-site.example.com \
 ALIYUN_HOST=your-server-host \
-ALIYUN_PORT=22 \
+ALIYUN_PORT=your-ssh-port \
 ALIYUN_USER=your-ssh-user \
 ALIYUN_SSH_KEY="$HOME/.ssh/your-deploy-key" \
 ALIYUN_SITE_ROOT=/path/to/site-directory \
@@ -130,6 +137,13 @@ npm run deploy:aliyun
 
 ```bash
 npm run deploy:aliyun -- --dry-run
+```
+
+紧急维护时可以显式跳过部署后的运行时门禁，但需要随后单独补跑：
+
+```bash
+npm run deploy:aliyun -- --skip-runtime-doctor
+npm run aliyun:runtime:doctor -- --strict
 ```
 
 ## 项目结构
@@ -154,6 +168,7 @@ docs/               架构、上线、手工 QA 和协作说明
 ## 文档
 
 - [协作与提交规则](./docs/GIT_WORKFLOW.md)
+- [公开仓库双轨流程](./docs/PUBLIC_REPO_WORKFLOW.md)
 - [架构规划](./docs/SITE_ARCHITECTURE_PLAN.md)
 - [交付路线](./docs/MASTER_DELIVERY_PLAN.md)
 - [上线检查清单](./docs/LAUNCH_READINESS_CHECKLIST.md)
@@ -165,4 +180,4 @@ docs/               架构、上线、手工 QA 和协作说明
 - 不要提交 `.env`、真实账号、会话 JSON、服务端密钥、SSH key、服务器地址或私有部署路径。
 - 不要提交 `dist/`、`output/`、`artifacts/`、`tmp/` 等本地构建或检查产物。
 - README 和示例配置只应使用占位符。
-- 发布前建议运行 `npm run project:check`，并确认 Git diff 中没有真实环境信息。
+- 发布或刷新公开快照前建议运行 `npm run flow:doctor -- --strict`、`npm run public:snapshot:doctor`、`npm run public:snapshot:export -- --dry-run` 和 `npm run project:check`，并确认 Git diff 中没有真实环境信息。

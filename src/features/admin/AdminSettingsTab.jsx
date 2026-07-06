@@ -60,7 +60,7 @@ export function AdminSettingsTab({
   return (
     <form className="user-admin-panel settings-panel" onSubmit={onSubmit}>
       <p className="admin-help-text">
-        这里管理会影响全站的轻量配置。上传上限不能超过 Supabase Storage 当前 bucket 限制 8 MB。
+        这里管理会影响全站的轻量配置。单张图片上传上限不能超过当前站点限制 8 MB。
       </p>
       <SettingsFields
         loadingSettings={loadingSettings}

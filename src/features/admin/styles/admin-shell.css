@@ -1,0 +1,287 @@
+.admin-overlay {
+  place-items: stretch center;
+  overflow-y: auto;
+}
+
+.admin-page-shell {
+  width: min(1480px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 34px) 0 72px;
+}
+
+.admin-page-panel {
+  width: 100%;
+  max-height: none;
+  min-height: calc(100dvh - 190px);
+  overflow: visible;
+  padding: 28px;
+}
+
+.admin-page-loading {
+  width: 100%;
+  border: var(--border-tech);
+  border-radius: 8px;
+  padding: 28px;
+  background: #ffffff;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.admin-access-panel {
+  width: min(720px, 100%);
+  margin: clamp(24px, 7vw, 80px) auto;
+  border: var(--border-tech);
+  border-radius: 8px;
+  padding: clamp(24px, 4vw, 42px);
+  background: #ffffff;
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.admin-access-panel h1 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.admin-access-panel p:not(.eyebrow) {
+  max-width: 560px;
+  margin: 0 0 24px;
+  color: var(--ink-soft);
+  line-height: 1.75;
+}
+
+.admin-panel {
+  width: min(1180px, 100%);
+  max-height: calc(100dvh - 104px - env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: var(--border-tech);
+  background:
+    linear-gradient(180deg, rgba(250, 254, 255, 0.96), rgba(232, 248, 255, 0.9)),
+    var(--color-glass-bg);
+}
+
+.admin-page-panel.admin-panel {
+  width: 100%;
+  max-height: none;
+  min-height: calc(100dvh - 190px);
+  overflow: visible;
+}
+
+.admin-console-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  gap: 22px;
+  align-items: center;
+  min-height: 172px;
+  border: 1px solid rgba(118, 182, 208, 0.24);
+  border-radius: 24px;
+  padding: clamp(18px, 2.5vw, 28px);
+  background:
+    linear-gradient(125deg, rgba(225, 247, 255, 0.78), rgba(255, 255, 255, 0.68) 54%, rgba(222, 246, 253, 0.58)),
+    rgba(255, 255, 255, 0.58);
+  box-shadow: 0 18px 42px rgba(43, 83, 101, 0.1);
+}
+
+.admin-console-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.84), transparent 24%),
+    linear-gradient(90deg, rgba(31, 163, 205, 0.1), transparent 32%),
+    repeating-linear-gradient(90deg, transparent 0 28px, rgba(35, 128, 168, 0.06) 28px 29px);
+}
+
+.admin-console-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-console-hero h2 {
+  margin: 0;
+  color: #11354e;
+  font-family: "Songti SC", STSong, "Noto Serif SC", Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.12;
+}
+
+.admin-console-hero p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 10px 0 0;
+  color: #4e7488;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.admin-console-hero > span {
+  flex: 0 0 auto;
+  color: rgba(17, 70, 99, 0.12);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: 0.16em;
+  line-height: 0.82;
+}
+
+.admin-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.admin-title-row h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.admin-title-row h2 {
+  margin-bottom: 8px;
+}
+
+.admin-title-row p {
+  margin: 0;
+  color: #5d788b;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.admin-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.admin-stats span {
+  position: relative;
+  border-radius: 999px;
+  border: var(--border-tech);
+  padding: 7px 10px 7px 20px;
+  color: #2d647c;
+  background: var(--color-glass-bg);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease;
+}
+
+.admin-stats span::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-indicator-green);
+  box-shadow: 0 0 6px var(--color-indicator-glow);
+  transform: translateY(-50%);
+}
+
+.admin-stats span:hover {
+  border-color: rgba(55, 172, 144, 0.38);
+  box-shadow: 0 8px 20px rgba(71, 199, 166, 0.1);
+}
+
+.admin-tabs {
+  display: inline-flex;
+  align-self: flex-start;
+  border: var(--border-tech);
+  border-radius: 999px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.admin-tabs button {
+  position: relative;
+  min-height: 34px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 15px 2px;
+  color: #45677a;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: color 0.24s ease, background 0.24s ease, box-shadow 0.24s ease;
+}
+
+.admin-tabs button.active {
+  color: var(--color-indicator-green);
+  background: rgba(225, 249, 242, 0.46);
+  box-shadow: inset 0 0 0 1px rgba(55, 172, 144, 0.2);
+}
+
+.admin-tabs button.active::before {
+  content: '';
+  position: absolute;
+  right: 11px;
+  bottom: 6px;
+  left: 11px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-indicator-green);
+  box-shadow: 0 0 8px var(--color-indicator-glow);
+}
+
+.admin-disclosure {
+  border: 1px solid rgba(157, 190, 205, 0.28);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.46);
+  box-shadow: 0 14px 32px rgba(43, 83, 101, 0.08);
+}
+
+.admin-disclosure summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.admin-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-disclosure summary strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.96rem;
+}
+
+.admin-disclosure summary p {
+  margin: 6px 0 0;
+  color: #5f7b8d;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.admin-disclosure-toggle {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  color: #2d647c;
+  background: rgba(224, 246, 253, 0.72);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.admin-disclosure[open] .admin-disclosure-toggle {
+  color: #fff;
+  background: linear-gradient(125deg, #20add3, #127bb9);
+}
+
+.admin-disclosure-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 16px 16px;
+}

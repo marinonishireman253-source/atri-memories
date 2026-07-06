@@ -76,6 +76,8 @@ test('rejects route metrics with overflow or missing key content', () => {
       visibleKeyElements: 0,
       keyElementCount: 1,
       pageHeight: 1200,
+      galleryMobileSearchVisible: true,
+      galleryFirstCardTop: 620,
     },
   });
 
@@ -90,4 +92,99 @@ test('project check rebuilds the mobile demo bundle instead of reusing a prior d
 
   assert.match(projectCheck, /npm run mobile:check\b/);
   assert.doesNotMatch(projectCheck, /mobile:check -- --skip-build/);
+});
+
+test('gallery mobile metrics require visible search and first image row', () => {
+  assert.deepEqual(
+    assertRouteMetrics({
+      route: { path: '/gallery', name: '相册' },
+      viewport: { width: 390, height: 844, name: 'large-phone' },
+      metrics: {
+        scrollWidth: 390,
+        clientWidth: 390,
+        bodyWidth: 390,
+        visibleKeyElements: 1,
+        keyElementCount: 1,
+        pageHeight: 1600,
+        galleryMobileSearchVisible: true,
+        galleryFirstCardTop: 620,
+      },
+    }),
+    [],
+  );
+
+  const failures = assertRouteMetrics({
+    route: { path: '/gallery', name: '相册' },
+    viewport: { width: 390, height: 844, name: 'large-phone' },
+    metrics: {
+      scrollWidth: 390,
+      clientWidth: 390,
+      bodyWidth: 390,
+      visibleKeyElements: 1,
+      keyElementCount: 1,
+      pageHeight: 1600,
+      galleryMobileSearchVisible: false,
+      galleryFirstCardTop: 790,
+    },
+  });
+
+  assert.equal(failures.length, 2);
+  assert.match(failures[0], /移动相册搜索框不可见/);
+  assert.match(failures[1], /移动相册首张图片未进入首屏/);
+});
+
+test('gallery mobile metrics reject a missing first image row metric', () => {
+  const failures = assertRouteMetrics({
+    route: { path: '/gallery', name: '相册' },
+    viewport: { width: 390, height: 844, name: 'large-phone' },
+    metrics: {
+      scrollWidth: 390,
+      clientWidth: 390,
+      bodyWidth: 390,
+      visibleKeyElements: 1,
+      keyElementCount: 1,
+      pageHeight: 1600,
+      galleryMobileSearchVisible: true,
+      galleryFirstCardTop: null,
+    },
+  });
+
+  assert.equal(failures.length, 1);
+  assert.match(failures[0], /移动相册首张图片未找到/);
+});
+
+test('non-gallery route metrics do not require gallery-specific fields', () => {
+  assert.deepEqual(
+    assertRouteMetrics({
+      route: { path: '/blog', name: '博客' },
+      viewport: { width: 390, height: 844, name: 'large-phone' },
+      metrics: {
+        scrollWidth: 390,
+        clientWidth: 390,
+        bodyWidth: 390,
+        visibleKeyElements: 1,
+        keyElementCount: 1,
+        pageHeight: 1600,
+      },
+    }),
+    [],
+  );
+});
+
+test('mobile layout route metrics collect gallery-specific fields', () => {
+  const source = readFileSync(new URL('../scripts/mobile-layout-check.mjs', import.meta.url), 'utf8');
+
+  assert.match(source, /galleryMobileSearchVisible/);
+  assert.match(source, /galleryFirstCardTop/);
+  assert.match(source, /mobile-gallery-search/);
+  assert.doesNotMatch(source, /galleryFirstCardTop[\s\S]{0,160}:\s*9999/);
+});
+
+test('mobile layout script entry guard tolerates import without argv script', () => {
+  const source = readFileSync(new URL('../scripts/mobile-layout-check.mjs', import.meta.url), 'utf8');
+
+  assert.match(
+    source,
+    /if\s*\(\s*process\.argv\[1\]\s*&&\s*import\.meta\.url\s*===\s*pathToFileURL\(process\.argv\[1\]\)\.href\s*\)/,
+  );
 });

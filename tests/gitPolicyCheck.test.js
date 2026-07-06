@@ -5,6 +5,7 @@ import {
   isValidBranchName,
   isValidCommitSubject,
   normalizeBranchName,
+  validateWhitespaceClean,
 } from '../scripts/git-policy-check.mjs';
 
 test('accepts protected and task branch names used by the project', () => {
@@ -62,4 +63,15 @@ test('rejects vague or oversized commit subjects', () => {
   ]) {
     assert.equal(isValidCommitSubject(subject), false, subject);
   }
+});
+
+test('reports git diff whitespace failures with the checked range', () => {
+  const failures = validateWhitespaceClean([
+    ['main...HEAD', { ok: false, output: 'src/example.css:1: trailing whitespace.' }],
+    ['working tree', { ok: true, output: '' }],
+  ]);
+
+  assert.deepEqual(failures, [
+    'Git diff whitespace check failed (main...HEAD): src/example.css:1: trailing whitespace.',
+  ]);
 });

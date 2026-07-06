@@ -127,6 +127,9 @@ export const MemoryCard = memo(function MemoryCard({
       ref={cardRef}
       className={`memory-card screentone-shadow ${selected ? 'selected' : ''} ${imageReady ? 'image-ready' : ''}`}
       style={{ '--memory-image-aspect': imageAspect }}
+      data-memory-id={memory.id}
+      data-gallery-image-src={imageSrc}
+      data-gallery-fallback-src={fallbackImageSrc}
     >
       {favorited && (
         <div className="ink-stamp stamp-favorite" aria-hidden="true">

@@ -4,6 +4,56 @@ import { hydrateMemoryMediaUrls } from '../lib/memoryMedia.js';
 import { hasSupabaseConfig, supabase } from '../lib/supabaseClient.js';
 
 const PAGE_SIZE = 24;
+const ADMIN_MEMORY_REQUEST_TIMEOUT_MS = 20_000;
+const ADMIN_MEDIA_HYDRATION_TIMEOUT_MS = 8_000;
+
+async function invokeManageMemories(body) {
+  let lastResult = null;
+
+  for (let attempt = 0; attempt <= 1; attempt += 1) {
+    let timeoutId;
+    const timeoutResult = new Promise((resolve) => {
+      timeoutId = setTimeout(() => {
+        resolve({
+          data: null,
+          error: new Error('manage-memories request timed out'),
+        });
+      }, ADMIN_MEMORY_REQUEST_TIMEOUT_MS);
+    });
+
+    try {
+      const result = await Promise.race([
+        supabase.functions.invoke('manage-memories', { body }),
+        timeoutResult,
+      ]);
+
+      lastResult = result;
+      if (!result.error) return result;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  return lastResult;
+}
+
+async function hydrateAdminMemoryRows(rows) {
+  if (!rows.length) return rows;
+
+  let timeoutId;
+  const fallbackRows = new Promise((resolve) => {
+    timeoutId = setTimeout(() => resolve(rows), ADMIN_MEDIA_HYDRATION_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([
+      hydrateMemoryMediaUrls(rows),
+      fallbackRows,
+    ]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 export function useAdminMemories() {
   const [memories, setMemories] = useState([]);
@@ -46,18 +96,16 @@ export function useAdminMemories() {
     setError('');
 
     try {
-      const { data, error: invokeError } = await supabase.functions.invoke('manage-memories', {
-        body: {
-          action: 'list',
-          page: nextPage,
-          page_size: PAGE_SIZE,
-          ...filters,
-        },
+      const { data, error: invokeError } = await invokeManageMemories({
+        action: 'list',
+        page: nextPage,
+        page_size: PAGE_SIZE,
+        ...filters,
       });
 
       if (invokeError) throw invokeError;
 
-      const rows = await hydrateMemoryMediaUrls(normalizeMemories(data.memories ?? []));
+      const rows = await hydrateAdminMemoryRows(normalizeMemories(data.memories ?? []));
       const nextMemories = append ? [...memoriesRef.current, ...rows] : rows;
       setMemories(nextMemories);
       setPage(data.page ?? nextPage);

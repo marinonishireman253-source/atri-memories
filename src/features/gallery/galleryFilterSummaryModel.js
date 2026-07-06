@@ -23,12 +23,24 @@ function usesDefaultSort(filters) {
 
 export function buildGalleryFilterChips(filters = DEFAULT_MEMORY_FILTERS) {
   const chips = [];
+  const ownerId = filters.ownerId ?? DEFAULT_MEMORY_FILTERS.ownerId;
 
   if (filters.query?.trim()) {
     chips.push({
       key: 'query',
       label: `搜索：${filters.query.trim()}`,
       resetPatch: { query: DEFAULT_MEMORY_FILTERS.query },
+    });
+  }
+
+  if (ownerId !== DEFAULT_MEMORY_FILTERS.ownerId) {
+    chips.push({
+      key: 'owner',
+      label: `上传者：${filters.ownerLabel?.trim() || ownerId}`,
+      resetPatch: {
+        ownerId: DEFAULT_MEMORY_FILTERS.ownerId,
+        ownerLabel: DEFAULT_MEMORY_FILTERS.ownerLabel,
+      },
     });
   }
 

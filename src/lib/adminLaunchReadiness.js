@@ -40,26 +40,26 @@ export function launchConfigItems(summary, {
   const normalized = normalizeOverviewSummary(summary);
   const previewStrategy = sharePreviewStrategy();
   const sharePreviewValue = previewStrategy.usingPreviewLinks
-    ? 'share-memory 服务端预览链接（已启用）'
-    : '主站单图链接（可切换到 share-memory）';
+    ? '分享预览页已启用'
+    : '当前使用主站图片页';
   const sharePreviewDetail = previewStrategy.usingPreviewLinks
-    ? '当前复制策略会优先给出服务端分享页；上线前还要确认云端函数已部署且 PUBLIC_SITE_URL 已对齐生产域名。'
-    : '代码里已经准备了 share-memory 服务端分享页；当前仍默认复制主站 /memory/<id>，上线时可按策略切到 preview。';
+    ? '复制分享时会优先给出独立预览页；上线前继续确认点击后能回到当前站点。'
+    : '复制分享时会打开主站图片页；如果后续需要更强的社交预览，再切换为独立预览页。';
 
   return [
     {
       key: 'site-url',
-      label: '推荐 Site URL',
+      label: '站点入口地址',
       value: displayOrigin(currentOrigin),
       detail: localOrigin(currentOrigin)
         ? '当前仍是本地预览地址；真正上线前应替换成生产域名。'
-        : '当前窗口已经不是本地域名，可作为 Auth 配置候选值继续核对。',
+        : '当前窗口已经是线上域名，可作为登录和分享入口继续核对。',
     },
     {
       key: 'redirect-urls',
-      label: '推荐 Redirect URLs',
+      label: '登录跳转地址',
       value: redirectOrigins(currentOrigin),
-      detail: '确认 Supabase Auth 的 site_url 和 redirect URLs 与这里一致。',
+      detail: '登录、注册和找回密码完成后，应回到当前站点地址。',
     },
     {
       key: 'signup-mode',
@@ -110,8 +110,8 @@ export function buildLaunchReadinessChecks(summary, {
     checks.push({
       key: 'domain',
       tone: READINESS_TONE_WARNING,
-      title: '生产域名与 Auth 配置还没有真实落点',
-      detail: `当前站点来源仍是 ${displayOrigin(currentOrigin)}，上线前必须把 site_url、redirect URLs 和邀请跳转一起对齐到生产域名。`,
+      title: '生产域名与登录跳转还没有真实落点',
+      detail: `当前站点来源仍是 ${displayOrigin(currentOrigin)}，上线前必须把登录、注册和邀请跳转一起对齐到生产域名。`,
       targetTab: 'settings',
       actionLabel: '核对站点设置',
     });
@@ -120,7 +120,7 @@ export function buildLaunchReadinessChecks(summary, {
       key: 'domain',
       tone: READINESS_TONE_OK,
       title: '当前窗口已具备生产域名候选值',
-      detail: `当前来源是 ${currentOrigin}，可以继续核对 Auth 配置和分享域名，而不是停留在本地地址。`,
+      detail: `当前来源是 ${currentOrigin}，可以继续核对登录跳转和分享域名，而不是停留在本地地址。`,
       targetTab: 'settings',
       actionLabel: '继续核对配置',
     });
@@ -141,8 +141,8 @@ export function buildLaunchReadinessChecks(summary, {
       tone: READINESS_TONE_INFO,
       title: '账号发放路径已明确',
       detail: registrationsEnabled
-        ? '当前走公开注册 + 邮箱确认；上线前继续核对邮件模板和 Auth redirect URLs。'
-        : `当前走邀请制，服务端邀请限频已经存在；仍有 ${normalized.invited_pending_users} 个邀请待确认。`,
+        ? '当前走公开注册 + 邮箱确认；上线前继续核对邮件内容和登录跳转地址。'
+        : `当前走邀请制，邀请频率限制已经存在；仍有 ${normalized.invited_pending_users} 个邀请待确认。`,
       targetTab: 'users',
       actionLabel: '看用户状态',
     });
@@ -192,11 +192,11 @@ export function buildLaunchReadinessChecks(summary, {
     key: 'share-preview',
     tone: previewStrategy.usingPreviewLinks ? READINESS_TONE_INFO : READINESS_TONE_WARNING,
     title: previewStrategy.usingPreviewLinks
-      ? '服务端分享预览复制策略已启用'
-      : '服务端分享预览模块已具备，仍待部署配置收口',
+      ? '分享预览复制策略已启用'
+      : '分享预览仍使用主站图片页',
     detail: previewStrategy.usingPreviewLinks
-      ? 'share-memory 已作为当前分享入口；上线前继续确认函数部署成功，并把 PUBLIC_SITE_URL 回跳域名对齐到生产站点。'
-      : '当前代码已准备 share-memory Edge Function，但默认复制策略仍是主站单图链接；上线前还要确认函数部署、PUBLIC_SITE_URL 和 VITE_SHARE_LINK_MODE 一起对齐。',
+      ? '分享入口会打开独立预览页；上线前继续确认链接能正常打开并回到当前站点。'
+      : '当前分享入口仍打开主站图片页；后续如需更醒目的社交预览，可以在发布前切换。',
     targetTab: 'settings',
     actionLabel: previewStrategy.usingPreviewLinks ? '继续核对配置' : '核对分享策略',
   });
@@ -205,7 +205,7 @@ export function buildLaunchReadinessChecks(summary, {
     key: 'manual-qa',
     tone: READINESS_TONE_INFO,
     title: '上线前仍需要一次完整手工验收',
-    detail: `除了 npm run verify，还要按清单手工走访客、用户、管理员和手机端主流程。当前上传时间窗口是每小时 ${numericLimit(uploadHourLimit, '不限')} 张 / 每日 ${numericLimit(uploadDayLimit, '不限')} 张。`,
+    detail: `除了自动检查，还要按清单手工走访客、用户、管理员和手机端主流程。当前上传时间窗口是每小时 ${numericLimit(uploadHourLimit, '不限')} 张 / 每日 ${numericLimit(uploadDayLimit, '不限')} 张。`,
     targetTab: 'overview',
     actionLabel: '回到运维概览',
   });

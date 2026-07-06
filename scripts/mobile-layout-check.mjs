@@ -166,6 +166,10 @@ export function hasHorizontalOverflow(metrics, tolerance = horizontalOverflowTol
   return Math.max(scrollWidth, bodyWidth) - clientWidth > tolerance;
 }
 
+function isGalleryRoute(route) {
+  return route.path === '/gallery';
+}
+
 export function assertRouteMetrics({ route, viewport, metrics }) {
   const failures = [];
   const routeLabel = `${formatRouteLabel(route)} @ ${viewport.width}x${viewport.height}`;
@@ -184,6 +188,27 @@ export function assertRouteMetrics({ route, viewport, metrics }) {
 
   if (metrics.pageHeight <= 0) {
     failures.push(`${routeLabel} 页面高度异常：${metrics.pageHeight}`);
+  }
+
+  if (isGalleryRoute(route)) {
+    if (!metrics.galleryMobileSearchVisible) {
+      failures.push(`${routeLabel} 移动相册搜索框不可见。`);
+    }
+
+    const rawFirstCardTop = metrics.galleryFirstCardTop;
+    const firstCardLimit = Math.max(0, viewport.height - 96);
+    if (rawFirstCardTop == null) {
+      failures.push(`${routeLabel} 移动相册首张图片未找到。`);
+    } else {
+      const firstCardTop = Number(rawFirstCardTop);
+      if (!Number.isFinite(firstCardTop)) {
+        failures.push(`${routeLabel} 移动相册首张图片未找到。`);
+      } else if (firstCardTop > firstCardLimit) {
+        failures.push(
+          `${routeLabel} 移动相册首张图片未进入首屏：top=${metrics.galleryFirstCardTop}, limit=${firstCardLimit}`,
+        );
+      }
+    }
   }
 
   return failures;
@@ -208,6 +233,22 @@ async function routeMetrics(page, route) {
         && style.display !== 'none';
     }).length;
 
+    const gallerySearch = document.querySelector('.mobile-gallery-search input[type="search"]');
+    const galleryFirstCard = document.querySelector('.memory-open');
+    const gallerySearchRect = gallerySearch?.getBoundingClientRect();
+    const gallerySearchStyle = gallerySearch ? window.getComputedStyle(gallerySearch) : null;
+    const galleryFirstCardRect = galleryFirstCard?.getBoundingClientRect();
+    const galleryMobileSearchVisible = Boolean(
+      gallerySearchRect
+        && gallerySearchRect.width > 0
+        && gallerySearchRect.height > 0
+        && gallerySearchStyle?.display !== 'none'
+        && gallerySearchStyle?.visibility !== 'hidden',
+    );
+    const galleryFirstCardTop = Number.isFinite(galleryFirstCardRect?.top)
+      ? Math.round(galleryFirstCardRect.top)
+      : null;
+
     return {
       scrollWidth: Math.max(doc.scrollWidth, body?.scrollWidth ?? 0),
       clientWidth: doc.clientWidth,
@@ -215,6 +256,8 @@ async function routeMetrics(page, route) {
       pageHeight: Math.max(doc.scrollHeight, body?.scrollHeight ?? 0),
       visibleKeyElements,
       keyElementCount: selectors.length,
+      galleryMobileSearchVisible,
+      galleryFirstCardTop,
     };
   }, route.keySelectors);
 }
@@ -334,7 +377,7 @@ async function main() {
   log(`Mobile layout check passed. Artifacts: ${outputDir}`);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     process.stderr.write(`${error.message}\n`);
     process.exit(1);

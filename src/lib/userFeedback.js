@@ -24,6 +24,16 @@ export function normalizeUserFacingError(message) {
   const rawMessage = String(message ?? '').trim();
   const isQuotaOrServiceLimit =
     /exceed_egress_quota|restricted due|spend caps|project owner|quota/i.test(rawMessage);
+  const isInvalidLogin = /invalid (login )?credentials/i.test(rawMessage);
+
+  if (isInvalidLogin) {
+    return {
+      title: '账号或密码不正确',
+      body: '请检查邮箱和密码后再试。',
+      tone: NOTICE_TONE_ERROR,
+      icon: '!',
+    };
+  }
 
   if (isQuotaOrServiceLimit) {
     return {

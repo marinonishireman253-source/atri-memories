@@ -105,7 +105,7 @@ export function SettingsFields({
           onChange={(event) => onSettingsUploadMaxMbChange(event.target.value)}
           disabled={disabled}
         />
-        <span>前端会按这个值校验；Storage bucket 当前硬限制是 8 MB。</span>
+        <span>上传前会按这个值校验；当前站点最高支持 8 MB。</span>
       </label>
       <label>
         单次上传张数
@@ -174,7 +174,7 @@ export function SettingsFields({
           disabled={disabled}
           placeholder="留空表示不限"
         />
-        <span>管理员在最近 24 小时内最多可发送多少封邀请；邀请发送由服务端强制校验。</span>
+        <span>管理员在最近 24 小时内最多可发送多少封邀请；邀请发送会自动按这个限制校验。</span>
       </label>
       <label className="settings-checkbox">
         普通用户上传
@@ -262,7 +262,7 @@ export function SettingsLaunchReadiness({
         {launchConfig.map((item) => (
           <article className="launch-config-card" key={item.key}>
             <span>{item.label}</span>
-            <code>{item.value}</code>
+            <strong className="admin-config-value">{item.value}</strong>
             <p>{item.detail}</p>
           </article>
         ))}
@@ -278,26 +278,26 @@ export function SettingsAuthReminder({
 }) {
   return (
     <div className="settings-preview auth-settings-preview">
-      <strong>Auth 配置提醒</strong>
+      <strong>登录配置提醒</strong>
       <p className="admin-help-text">
-        当前站点策略是{settingsRegistrationsEnabled ? '公开注册' : '邀请制'}。真正上线时，Supabase Auth 后台应与这里保持一致。
+        当前站点策略是{settingsRegistrationsEnabled ? '公开注册' : '邀请制'}。线上登录、注册和邮件跳转应与这里保持一致。
       </p>
       <div className="auth-config-grid">
         <div>
-          <span>推荐 Site URL</span>
-          <code>{currentOrigin || '本地预览 / 待部署域名'}</code>
+          <span>站点入口地址</span>
+          <strong className="admin-config-value">{currentOrigin || '本地预览 / 待部署域名'}</strong>
         </div>
         <div>
-          <span>推荐 Redirect URLs</span>
-          <code>{currentOrigin ? `${currentOrigin} , ${currentOrigin}/` : '部署后填写站点根地址'}</code>
+          <span>登录跳转地址</span>
+          <strong className="admin-config-value">{currentOrigin ? `${currentOrigin} , ${currentOrigin}/` : '部署后填写站点根地址'}</strong>
         </div>
         <div>
           <span>公开注册策略</span>
-          <code>{settingsRegistrationsEnabled ? '允许公开注册 + 邮箱确认' : '关闭公开注册 + 管理员邀请用户'}</code>
+          <strong className="admin-config-value">{settingsRegistrationsEnabled ? '允许公开注册 + 邮箱确认' : '关闭公开注册 + 管理员邀请用户'}</strong>
         </div>
         <div>
-          <span>邀请邮件前提</span>
-          <code>需确认 Site URL、邮件模板和跳转地址可用</code>
+          <span>邀请邮件检查</span>
+          <strong className="admin-config-value">确认邮件内容和跳转地址可用</strong>
         </div>
       </div>
     </div>
@@ -366,7 +366,7 @@ export function SettingsOperationsPanel({
             <div className="health-check ok">
               <div>
                 <strong>配置层没有额外风险提示</strong>
-                <p>Auth 策略、邀请流程和当前域名没有额外阻塞，可以继续推进上线前配置。</p>
+                <p>登录策略、邀请流程和当前域名没有额外阻塞，可以继续推进上线前配置。</p>
               </div>
             </div>
           )}
@@ -384,7 +384,7 @@ export function SettingsOperationsPanel({
               <strong>{asset.priority}</strong>
               <small>{asset.scope}</small>
               <p>{asset.detail}</p>
-              <code>{asset.exportRoute}</code>
+              <span className="backup-export-route">{asset.exportRoute}</span>
               <em>建议频率：{asset.frequency}</em>
             </article>
           ))}

@@ -43,6 +43,18 @@ function runGit(args) {
   }
 }
 
+function runGitCheck(args) {
+  try {
+    const output = execSync(`git ${args}`, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return { ok: true, output: output.trim() };
+  } catch (error) {
+    return {
+      ok: false,
+      output: `${error.stdout ?? ''}${error.stderr ?? ''}`.trim(),
+    };
+  }
+}
+
 export function normalizeBranchName(branchName) {
   return String(branchName ?? '')
     .trim()
@@ -108,6 +120,35 @@ export function validatePolicyFiles() {
   return failures;
 }
 
+export function validateWhitespaceClean(diffChecks) {
+  const failures = [];
+
+  for (const [label, result] of diffChecks) {
+    if (!result.ok) {
+      failures.push(`Git diff whitespace check failed (${label}): ${result.output || 'git diff --check failed'}`);
+    }
+  }
+
+  return failures;
+}
+
+function whitespaceDiffChecks(args, branchName) {
+  const checks = [
+    ['working tree', runGitCheck('diff --check')],
+    ['staged', runGitCheck('diff --cached --check')],
+  ];
+  const normalizedBranch = normalizeBranchName(branchName);
+  const baseRef = args.ci && process.env.GITHUB_BASE_REF
+    ? `origin/${process.env.GITHUB_BASE_REF}`
+    : 'main';
+
+  if (normalizedBranch && normalizedBranch !== 'main' && runGit(`rev-parse --verify ${baseRef}`)) {
+    checks.push([baseRef, runGitCheck(`diff --check ${baseRef}`)]);
+  }
+
+  return checks;
+}
+
 function parseArgs(argv) {
   const args = {
     ci: false,
@@ -155,6 +196,8 @@ function main() {
   failures.push(...validatePolicyFiles());
 
   const branchName = normalizeBranchName(currentBranchName(args));
+  failures.push(...validateWhitespaceClean(whitespaceDiffChecks(args, branchName)));
+
   if (branchName && branchName !== 'HEAD' && !isValidBranchName(branchName)) {
     failures.push(`当前分支名不符合规则：${branchName}`);
   }

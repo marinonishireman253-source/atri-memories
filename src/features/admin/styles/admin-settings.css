@@ -1,0 +1,263 @@
+.settings-panel {
+  flex: 0 1 auto;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 14px;
+}
+
+.settings-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #4c6e82;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.settings-grid textarea,
+.settings-grid input {
+  width: 100%;
+  border: 1px solid rgba(123, 169, 190, 0.36);
+  border-radius: 14px;
+  padding: 11px 12px;
+  color: #17384c;
+  background: rgba(255, 255, 255, 0.72);
+  font: inherit;
+  font-weight: 500;
+}
+
+.settings-grid .settings-checkbox > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-grid .settings-checkbox input[type="checkbox"] {
+  width: auto;
+  min-height: auto;
+}
+
+.settings-grid textarea:focus,
+.settings-grid input:focus {
+  outline: 2px solid rgba(48, 166, 213, 0.22);
+  border-color: rgba(42, 158, 204, 0.65);
+}
+
+.settings-grid span,
+.settings-preview strong {
+  color: #6a8495;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.settings-preview {
+  border: 1px solid rgba(157, 190, 205, 0.3);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.settings-preview .tag-row {
+  margin-top: 10px;
+}
+
+.auth-settings-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.launch-config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.launch-config-card {
+  border: 1px solid rgba(157, 190, 205, 0.3);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.launch-config-card span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6a8495;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.launch-config-card code {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #17384c;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.launch-config-card p {
+  margin: 10px 0 0;
+  color: #5f7b8d;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.backup-settings-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.backup-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.backup-asset-card,
+.backup-plan-card {
+  border: 1px solid rgba(157, 190, 205, 0.3);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.backup-asset-card span,
+.backup-plan-card strong {
+  display: block;
+  color: #6a8495;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.backup-asset-card strong {
+  display: block;
+  margin: 8px 0 6px;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.backup-asset-card small {
+  display: block;
+  color: #5f7b8d;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.backup-asset-card p {
+  margin: 10px 0;
+  color: #5f7b8d;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.backup-asset-card code {
+  display: block;
+  margin-top: 10px;
+  color: #17405a;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  white-space: normal;
+}
+
+.backup-asset-card em {
+  display: block;
+  margin-top: 10px;
+  color: #6a8495;
+  font-size: 0.74rem;
+  font-style: normal;
+}
+
+.backup-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.retention-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.retention-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(157, 190, 205, 0.24);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.retention-card span,
+.retention-card small,
+.retention-card em {
+  color: #5f7b8d;
+}
+
+.retention-card span {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.retention-card strong {
+  color: var(--ink);
+  font-size: 0.94rem;
+}
+
+.retention-card p,
+.retention-card em {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.backup-plan-card ol,
+.backup-plan-card ul {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: #5f7b8d;
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.auth-config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.auth-config-grid div {
+  border: 1px solid rgba(157, 190, 205, 0.3);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.auth-config-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6a8495;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.auth-config-grid code {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #17384c;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.settings-actions {
+  justify-content: flex-start;
+}

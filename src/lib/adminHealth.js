@@ -104,7 +104,7 @@ export function buildSiteHealthChecks(summary, { currentOrigin = '' } = {}) {
       key: 'local-origin',
       tone: HEALTH_TONE_WARNING,
       title: '站点仍处于本地或未部署域名',
-      detail: 'Auth Site URL、分享链接和邀请邮件跳转仍然依赖当前本地地址，离真正上线还有一步。',
+      detail: '登录入口、分享链接和邀请邮件跳转仍然依赖当前本地地址，离真正上线还有一步。',
       targetTab: 'settings',
       actionLabel: '去站点设置',
       group: 'readiness',

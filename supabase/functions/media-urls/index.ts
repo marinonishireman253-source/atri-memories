@@ -23,7 +23,8 @@ function isInternalHost(hostname: string) {
     || normalized === '0.0.0.0'
     || normalized === 'kong'
     || normalized === 'supabase-kong'
-    || normalized === 'functions';
+    || normalized === 'functions'
+    || normalized === 'supabase-edge-functions';
 }
 
 function normalizedPublicOrigin(parsed: URL) {

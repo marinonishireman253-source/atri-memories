@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export function CustomCursor() {
   const cursorRef = useRef(null);
@@ -129,7 +130,7 @@ export function CustomCursor() {
 
   if (!visible) return null;
 
-  return (
+  const cursorContent = (
     <div
       ref={cursorRef}
       className={`custom-cursor-wrap ${hovered ? 'is-hovered' : ''}`}
@@ -159,4 +160,10 @@ export function CustomCursor() {
       </div>
     </div>
   );
+
+  if (typeof document !== 'undefined' && document.body) {
+    return createPortal(cursorContent, document.body);
+  }
+
+  return cursorContent;
 }

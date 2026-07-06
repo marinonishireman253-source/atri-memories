@@ -59,3 +59,18 @@ test('Aliyun deploy strips macOS metadata from frontend and function archives', 
   assert.match(deployScript, /\['--no-xattrs', '-C', root, '-czf', functionsArchivePath, 'supabase\/functions'\]/);
   assert.match(deployScript, /xattr/);
 });
+
+test('Aliyun deploy runs runtime doctor after remote deployment unless explicitly skipped', () => {
+  assert.match(deployScript, /skipRuntimeDoctor/);
+  assert.match(deployScript, /--skip-runtime-doctor/);
+  assert.match(deployScript, /aliyun-runtime-doctor\.mjs/);
+  assert.match(deployScript, /--strict/);
+  assert.match(deployScript, /Running Aliyun runtime doctor after deploy/);
+});
+
+test('Aliyun deploy waits for the restarted Edge Functions container healthcheck', () => {
+  assert.match(deployScript, /docker restart "\$container_name"/);
+  assert.match(deployScript, /docker inspect -f '\{\{if \.State\.Health\}\}\{\{\.State\.Health\.Status\}\}/);
+  assert.match(deployScript, /\[ "\$health" = "healthy" \] && break/);
+  assert.match(deployScript, /sleep 2/);
+});

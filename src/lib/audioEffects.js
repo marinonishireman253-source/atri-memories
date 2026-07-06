@@ -3,14 +3,32 @@
 // without needing static audio asset files, guaranteeing compatibility and fast loading.
 
 let audioCtx = null;
+let userActivatedAudio = false;
+
+function markAudioActivated() {
+  userActivatedAudio = true;
+}
+
+function hasAudioActivation() {
+  if (typeof window === 'undefined') return false;
+  const activation = window.navigator?.userActivation;
+  return Boolean(userActivatedAudio || activation?.isActive || activation?.hasBeenActive);
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('pointerdown', markAudioActivated, { capture: true, passive: true });
+  window.addEventListener('keydown', markAudioActivated, { capture: true });
+  window.addEventListener('touchstart', markAudioActivated, { capture: true, passive: true });
+}
 
 function getAudioContext() {
   if (typeof window === 'undefined') return null;
+  if (!hasAudioActivation()) return null;
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
   if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
+    audioCtx.resume().catch(() => {});
   }
   return audioCtx;
 }

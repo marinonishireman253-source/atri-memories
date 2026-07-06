@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -11,7 +11,9 @@ import {
   deriveRunState,
   publishBlogPost,
   renderBlogMarkdown,
+  reportMarkdown,
   reviewPublicPost,
+  runDailyBlog,
   sanitizeText,
 } from '../scripts/codex-daily-blog.mjs';
 
@@ -257,6 +259,30 @@ test('renders a concise Chinese daily blog from safe session summaries', () => {
   assert.doesNotMatch(markdown, /\/Users\//);
 });
 
+test('groups detailed ATRI closeouts into a public project-level summary', () => {
+  const post = buildBlogPost({
+    date: '2026-07-01',
+    sessions: [
+      {
+        project: 'ATRI 网站',
+        startTime: '2026-07-01 10:02',
+        summary: 'Committed `f17fc54` and changed AppOverlays.jsx to fix the admin image viewer.',
+        tools: ['exec_command'],
+      },
+      {
+        project: 'ATRI 网站',
+        startTime: '2026-07-01 11:22',
+        summary: 'Added /case-study smoke coverage, project checks, and release preflight wiring.',
+        tools: ['exec_command', 'js'],
+      },
+    ],
+  });
+
+  assert.match(post.content, /ATRI 网站维护/);
+  assert.match(post.content, /2 个线程/);
+  assert.doesNotMatch(post.content, /f17fc54|AppOverlays|\/case-study|release preflight/);
+});
+
 test('renders private game work as high-level progress and strips temporary image paths', () => {
   const post = buildBlogPost({
     date: '2026-06-30',
@@ -362,6 +388,69 @@ test('refreshes session JSON credentials before returning a Supabase client', as
   ]);
 });
 
+test('creates a service-role client without an admin session when server key is provided', async () => {
+  const calls = [];
+  const fakeClient = {
+    auth: {
+      setSession: async () => {
+        calls.push(['unexpected-setSession']);
+        return { data: {}, error: null };
+      },
+    },
+  };
+
+  const client = await createAuthorizedClient({
+    env: {
+      VITE_SUPABASE_URL: 'https://example.invalid',
+      VITE_SUPABASE_PUBLISHABLE_KEY: 'publishable-key',
+      SUPABASE_SERVICE_ROLE_KEY: 'server-only-key',
+    },
+    createClientFactory: (url, key, options) => {
+      calls.push(['createClient', url, key, options.auth.persistSession]);
+      return fakeClient;
+    },
+  });
+
+  assert.equal(client, fakeClient);
+  assert.deepEqual(calls, [
+    ['createClient', 'https://example.invalid', 'server-only-key', false],
+  ]);
+});
+
+test('creates a service-role client from a private command fallback', async () => {
+  const calls = [];
+  const fakeClient = {
+    auth: {
+      setSession: async () => {
+        calls.push(['unexpected-setSession']);
+        return { data: {}, error: null };
+      },
+    },
+  };
+
+  const client = await createAuthorizedClient({
+    env: {
+      VITE_SUPABASE_URL: 'https://example.invalid',
+      VITE_SUPABASE_PUBLISHABLE_KEY: 'publishable-key',
+      CODEX_DAILY_BLOG_SERVICE_ROLE_KEY_COMMAND: 'read-private-server-key',
+    },
+    runSecretCommand: async (command) => {
+      calls.push(['runSecretCommand', command]);
+      return 'server-key-from-private-command\n';
+    },
+    createClientFactory: (url, key, options) => {
+      calls.push(['createClient', url, key, options.auth.persistSession]);
+      return fakeClient;
+    },
+  });
+
+  assert.equal(client, fakeClient);
+  assert.deepEqual(calls, [
+    ['runSecretCommand', 'read-private-server-key'],
+    ['createClient', 'https://example.invalid', 'server-key-from-private-command', false],
+  ]);
+});
+
 test('publishes with an authenticated bearer token and updates existing daily post', async () => {
   const calls = [];
   const fakeClient = {
@@ -400,4 +489,123 @@ test('publishes with an authenticated bearer token and updates existing daily po
   assert.equal(result.action, 'updated');
   assert.deepEqual(calls[0], ['from', 'blog_posts']);
   assert.deepEqual(calls.at(-1), ['update-eq', 'id', 'post-1']);
+});
+
+test('writes a blocked report when publish mode lacks an admin session', async () => {
+  const root = makeTempRoot();
+  const sessionsDir = join(root, 'sessions', '2026', '07', '01');
+  const outputDir = join(root, 'output');
+  mkdirSync(sessionsDir, { recursive: true });
+  writeJsonl(join(sessionsDir, 'rollout-publishable.jsonl'), [
+    {
+      timestamp: '2026-07-01T10:00:00.000Z',
+      type: 'session_meta',
+      payload: {
+        id: '019f7777-aaaa-bbbb-cccc-777777777777',
+        cwd: '/Users/example/ATRI网站',
+      },
+    },
+    {
+      timestamp: '2026-07-01T10:02:00.000Z',
+      type: 'response_item',
+      payload: {
+        type: 'message',
+        role: 'assistant',
+        content: [{ type: 'output_text', text: '完成移动端检查，并通过 npm run check。' }],
+      },
+    },
+  ]);
+
+  const result = await runDailyBlog({
+    date: '2026-07-01',
+    now: new Date('2026-07-01T23:30:00+08:00'),
+    codexHome: root,
+    outputDir,
+    publish: true,
+    env: {
+      VITE_SUPABASE_URL: 'https://example.invalid',
+      VITE_SUPABASE_PUBLISHABLE_KEY: 'publishable-key',
+    },
+  });
+
+  assert.equal(result.status, 'blocked');
+  assert.match(result.path, /2026-07-01-blocked\.md$/);
+});
+
+test('records the distinct input file count in generated reports', async () => {
+  const root = makeTempRoot();
+  const sessionsDir = join(root, 'sessions', '2026', '07', '03');
+  const outputDir = join(root, 'output');
+  mkdirSync(sessionsDir, { recursive: true });
+  writeJsonl(join(sessionsDir, 'rollout-one.jsonl'), [
+    {
+      timestamp: '2026-07-03T10:00:00.000Z',
+      type: 'session_meta',
+      payload: {
+        id: '019f8888-aaaa-bbbb-cccc-888888888888',
+        cwd: '/Users/example/ATRI网站',
+      },
+    },
+    {
+      timestamp: '2026-07-03T10:02:00.000Z',
+      type: 'response_item',
+      payload: {
+        type: 'message',
+        role: 'assistant',
+        content: [{ type: 'output_text', text: '完成博客自动化检查。' }],
+      },
+    },
+  ]);
+  writeJsonl(join(sessionsDir, 'rollout-two.jsonl'), [
+    {
+      timestamp: '2026-07-03T11:00:00.000Z',
+      type: 'session_meta',
+      payload: {
+        id: '019f9999-aaaa-bbbb-cccc-999999999999',
+        cwd: '/Users/example/DarkVillageDemo',
+      },
+    },
+    {
+      timestamp: '2026-07-03T11:03:00.000Z',
+      type: 'response_item',
+      payload: {
+        type: 'message',
+        role: 'assistant',
+        content: [{ type: 'output_text', text: '完成游戏项目高层整理。' }],
+      },
+    },
+  ]);
+
+  const result = await runDailyBlog({
+    date: '2026-07-03',
+    now: new Date('2026-07-03T23:30:00+08:00'),
+    codexHome: root,
+    outputDir,
+    publish: false,
+  });
+
+  const report = readFileSync(result.path, 'utf8');
+
+  assert.equal(result.status, 'dry-run');
+  assert.match(report, /- 输入文件：2/);
+});
+
+test('records the publish timestamp in published reports', () => {
+  const report = reportMarkdown({
+    date: '2026-07-03',
+    state: {
+      status: 'published',
+      post: buildBlogPost({
+        date: '2026-07-03',
+        sessions: [{ project: 'ATRI 网站', summary: '完成博客自动化检查。' }],
+      }),
+      review: { ok: true, reasons: [] },
+    },
+    sessions: [{ inputFile: '/tmp/rollout-one.jsonl' }],
+    publishResult: { action: 'inserted' },
+    mode: 'publish',
+    generatedAt: new Date('2026-07-03T15:35:00.000Z'),
+  });
+
+  assert.match(report, /- 发布时间：2026-07-03 23:35/);
 });

@@ -47,7 +47,7 @@ export function abuseGuardrails(summary, settings) {
       key: 'upload-size',
       title: '上传体积与批次已有限制',
       tone: 'ok',
-      detail: `单图上限 ${uploadMaxMb} MB，单次批量最多 ${uploadBatchMax} 张，Storage bucket 仍是 private。`,
+      detail: `单图上限 ${uploadMaxMb} MB，单次批量最多 ${uploadBatchMax} 张，图片文件仍只通过站点授权访问。`,
       actionLabel: '去站点设置',
       targetTab: 'settings',
     },
@@ -84,7 +84,7 @@ export function abuseGuardrails(summary, settings) {
       key: 'upload-rate',
       title: '上传时间窗口限速已启用',
       tone: 'ok',
-      detail: `普通用户当前按 ${uploadRateLabels.join('，')} 进行服务端限速；管理员不受这组站点级时间窗口限制。`,
+      detail: `普通用户当前按 ${uploadRateLabels.join('，')} 进行上传限速；管理员不受这组站点级时间窗口限制。`,
       actionLabel: '去站点设置',
       targetTab: 'settings',
     });
@@ -95,7 +95,7 @@ export function abuseGuardrails(summary, settings) {
       key: 'invite-rate',
       title: '邀请发送时间窗口限速已启用',
       tone: 'ok',
-      detail: `管理员邀请当前按 ${inviteRateLabels.join('，')} 进行服务端限速，超过阈值时会直接阻止继续发信。`,
+      detail: `管理员邀请当前按 ${inviteRateLabels.join('，')} 进行发送限速，超过阈值时会直接阻止继续发信。`,
       actionLabel: '去站点设置',
       targetTab: 'settings',
     });
@@ -136,8 +136,8 @@ export function abuseGaps(summary, settings) {
       detail: registrationsEnabled
         ? '当前公开注册已经有异常监测，但仍缺少验证码、来源限制或 IP 级节流这类更硬的入口防护。'
         : missingInviteWindows.length > 0
-          ? `当前已使用邀请制，但邀请发送仍缺少${missingInviteWindows.join(' / ')}服务端频率硬限制；当前待确认邀请 ${normalized.invited_pending_users} 个。`
-          : `当前已使用邀请制，邀请发送已经有服务端时间窗口限制；当前待确认邀请 ${normalized.invited_pending_users} 个。`,
+          ? `当前已使用邀请制，但邀请发送仍缺少${missingInviteWindows.join(' / ')}频率限制；当前待确认邀请 ${normalized.invited_pending_users} 个。`
+          : `当前已使用邀请制，邀请发送已经有时间窗口限制；当前待确认邀请 ${normalized.invited_pending_users} 个。`,
       actionLabel: registrationsEnabled ? '去站点设置' : '去用户管理',
       targetTab: registrationsEnabled ? 'settings' : 'users',
     },
@@ -209,7 +209,7 @@ export function abuseStrategyHeadline(gaps) {
     return `${criticalCount} 个高风险滥用缺口正在影响当前治理`;
   }
   if (warningCount > 0) {
-    return `${warningCount} 个反滥用缺口仍未落到服务端策略`;
+    return `${warningCount} 个反滥用缺口仍未落到站点策略`;
   }
   return '当前反滥用策略没有明显缺口';
 }

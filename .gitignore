@@ -10,3 +10,4 @@ tmp
 .playwright-cli
 supabase/.temp
 docs/superpowers/
+.superpowers/

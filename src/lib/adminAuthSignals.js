@@ -75,7 +75,7 @@ export function buildAuthAnomalySignals(summary) {
       key: 'registrations-while-closed',
       tone: 'warning',
       title: '邀请制下仍有新增注册账号',
-      detail: `公开注册已关闭，但最近 24 小时仍出现 ${normalized.registrations_24h} 个非邀请新账号，需要核对 Auth 配置是否与站点策略一致。`,
+      detail: `公开注册已关闭，但最近 24 小时仍出现 ${normalized.registrations_24h} 个非邀请新账号，需要核对登录配置是否与站点策略一致。`,
       targetTab: 'settings',
       actionLabel: '去站点设置',
     });

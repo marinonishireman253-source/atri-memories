@@ -11,9 +11,10 @@ npm run release:preflight
 npm run product:doctor
 npm run deploy:doctor
 npm run launch:doctor
+npm run aliyun:runtime:doctor -- --strict
 ```
 
-`release:preflight` 会汇总 `verify`、`deploy:doctor`、`launch:doctor`、`smoke:doctor`、`qa:doctor` 和 `smoke` 的结果，生成 `output/release/` 下的预发布报告；真正发布前用 `npm run release:preflight -- --strict`，让任何 warning / 跳过项都阻断发布。`product:doctor` 会单独复核用户侧、管理侧、数据权限和交接文档这些本地产品主路径是否仍完整；`deploy:doctor` 会检查 Supabase CLI、project ref、生产域名和 `share-memory` 部署命令提示；`launch:doctor` 会单独检查本地环境变量，读取一张远端公开图片，并验证云端 `share-memory` 能否为真实图片输出 OG/Twitter meta。跑完后再回到本清单逐项核对需要在 Dashboard 完成的配置。
+`release:preflight` 会汇总 `verify`、`deploy:doctor`、`launch:doctor`、`smoke:doctor`、`qa:doctor` 和 `smoke` 的结果，生成 `output/release/` 下的预发布报告；真正发布前用 `npm run release:preflight -- --strict`，让任何 warning / 跳过项都阻断发布。`product:doctor` 会单独复核用户侧、管理侧、数据权限和交接文档这些本地产品主路径是否仍完整；`deploy:doctor` 会检查 Supabase CLI、project ref、生产域名和 `share-memory` 部署命令提示；`launch:doctor` 会单独检查本地环境变量，读取一张远端公开图片，并验证云端 `share-memory` 能否为真实图片输出 OG/Twitter meta；`aliyun:runtime:doctor -- --strict` 会检查固定规格阿里云上的内存、负载、SSH 默认端口阻断、管理端口限速、fail2ban、证书续期、snapd、Docker 日志轮转、Supabase 容器、DB readiness 和 Auth 到 DB 的解析状态。跑完后再回到本清单逐项核对需要在 Dashboard 完成的配置。
 
 ## 1. 部署目标
 
@@ -23,6 +24,7 @@ npm run launch:doctor
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_PUBLISHABLE_KEY`
 - 部署 `share-memory` 前先运行 `npm run deploy:doctor`，确认 Supabase CLI、project ref 和 `PUBLIC_SITE_URL` secret 提示都明确。
+- 当前固定部署在阿里云时，部署后必须运行 `npm run aliyun:runtime:doctor -- --strict`；如果因紧急维护跳过，必须在同一轮收口里补跑，并确认 SSH 与 Docker 后端端口收口未被覆盖。
 - 禁止把 service role key 放入前端环境变量。
 
 ## 2. Supabase Auth

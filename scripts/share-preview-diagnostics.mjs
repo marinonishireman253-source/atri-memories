@@ -38,7 +38,17 @@ export async function fetchFirstPublicMemoryId({ supabaseUrl, publishableKey }) 
   }
 }
 
-export async function checkShareMemoryPreview({ supabaseUrl, publishableKey }) {
+function trimTrailingSlash(value = '') {
+  return String(value).trim().replace(/\/+$/, '');
+}
+
+function publicSiteMemoryUrl(publicSiteUrl, memoryId) {
+  const siteUrl = trimTrailingSlash(publicSiteUrl);
+  if (!siteUrl || !memoryId) return '';
+  return `${siteUrl}/memory/${memoryId}`;
+}
+
+export async function checkShareMemoryPreview({ supabaseUrl, publishableKey, publicSiteUrl = '' }) {
   try {
     const publicMemory = await fetchFirstPublicMemoryId({ supabaseUrl, publishableKey });
     const previewUrl = publicMemory.id
@@ -57,6 +67,10 @@ export async function checkShareMemoryPreview({ supabaseUrl, publishableKey }) {
     const hasCanonical = publicMemory.id
       ? body.includes(`/functions/v1/share-memory?id=${publicMemory.id}`)
       : /<link rel="canonical"/.test(body);
+    const publicSiteRedirectUrl = publicSiteMemoryUrl(publicSiteUrl, publicMemory.id);
+    const hasPublicSiteRedirect = publicSiteRedirectUrl
+      ? body.includes(publicSiteRedirectUrl)
+      : false;
 
     if (!publicMemory.id) {
       return {
@@ -69,6 +83,8 @@ export async function checkShareMemoryPreview({ supabaseUrl, publishableKey }) {
         isHtmlContentType,
         isSupabaseTextPlainHtml,
         hasCanonical,
+        hasPublicSiteRedirect,
+        publicSiteRedirectUrl,
         error: publicMemory.error,
       };
     }
@@ -83,6 +99,8 @@ export async function checkShareMemoryPreview({ supabaseUrl, publishableKey }) {
       isHtmlContentType,
       isSupabaseTextPlainHtml,
       hasCanonical,
+      hasPublicSiteRedirect,
+      publicSiteRedirectUrl,
     };
   } catch (error) {
     return {
@@ -95,6 +113,8 @@ export async function checkShareMemoryPreview({ supabaseUrl, publishableKey }) {
       isHtmlContentType: false,
       isSupabaseTextPlainHtml: false,
       hasCanonical: false,
+      hasPublicSiteRedirect: false,
+      publicSiteRedirectUrl: '',
       error: error instanceof Error ? error.message : 'unknown fetch error',
     };
   }

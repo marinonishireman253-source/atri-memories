@@ -63,7 +63,7 @@ export function AdminUsersTab({
         <div>
           <strong>邀请用户</strong>
           <p className="admin-help-text">
-            适合在关闭公开注册后发放账号。邮件内容和跳转地址由 Supabase Auth 的站点配置决定。
+            适合在关闭公开注册后发放账号。邮件内容和跳转地址由登录邮件配置决定。
           </p>
           <p className="admin-help-text">
             当前策略：{inviteLimitSummary(invitePolicy)}。{inviteUsageSummary(invitePolicy)}。

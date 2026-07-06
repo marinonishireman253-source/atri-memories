@@ -8,6 +8,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const args = new Set(process.argv.slice(2));
 const dryRun = args.has('--dry-run');
 const skipBuild = args.has('--skip-build');
+const skipRuntimeDoctor = args.has('--skip-runtime-doctor');
 
 function parseEnvFile(path) {
   try {
@@ -258,6 +259,11 @@ if [ -n "$EDGE_FUNCTION_CONTAINER_CANDIDATES" ] && command -v docker >/dev/null 
     if printf '%s\n' "$running_containers" | grep -Fxq "$container_name"; then
       docker restart "$container_name" >/dev/null
       restarted_functions_container=1
+      for _ in $(seq 1 30); do
+        health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_name" 2>/dev/null || true)"
+        [ "$health" = "healthy" ] && break
+        sleep 2
+      done
       break
     fi
   done
@@ -278,6 +284,7 @@ function main() {
   info(`SSH key: ${config.sshKey || '<system ssh config or agent>'}`);
   info(`Public URL baked into build: ${config.publicSiteUrl || '<VITE_PUBLIC_SITE_URL>'}`);
   if (dryRun) info('Mode: dry run, no local build or remote deploy will be executed');
+  if (skipRuntimeDoctor) info('Skipping Aliyun runtime doctor because --skip-runtime-doctor was provided.');
 
   requireCommand('tar');
   requireCommand('ssh');
@@ -361,6 +368,10 @@ function main() {
     ]);
 
     run('ssh', [...sshArgs, remoteCommand]);
+    if (!skipRuntimeDoctor) {
+      info('Running Aliyun runtime doctor after deploy...');
+      run('node', ['scripts/aliyun-runtime-doctor.mjs', '--strict']);
+    }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
